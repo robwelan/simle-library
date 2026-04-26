@@ -1,12 +1,17 @@
 # File Path: .github/workflows/deploy.yml
+# Force Refresh: Triggering GitHub Actions registration
 name: Build and Deploy SIMLE Engine
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:          # Allows you to manually trigger the agent from the Actions tab
+    branches:
+      - main
+      - master
+  workflow_dispatch:          # Enables the manual "Run workflow" button in Actions tab
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
