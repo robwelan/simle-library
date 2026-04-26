@@ -1,5 +1,5 @@
 # File Path: .github/workflows/deploy.yml
-# This file must be placed in the '.github/workflows/' directory at the root of your repository.
+# This workflow targets the experimental sub-directory for the Rust build.
 
 name: Build and Deploy SIMLE Engine
 
@@ -8,6 +8,10 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+env:
+  # Opt-in to Node 24 early to clear the deprecation warning
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-wasm:
@@ -26,29 +30,36 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build Wasm Engine
-        # Using the standard npm script for consistency
-        run: npm run build:wasm
+        # We target the sub-directory where your Cargo.toml actually lives.
+        working-directory: ./archives/experiments/engine-src
+        run: wasm-pack build --target web
 
-      - name: Sync Assets to Docs
+      - name: Sync Assets to Docs and Shared Assets
         run: |
-          # Create the destination directory if it doesn't exist
+          # 1. Create destination directories
           mkdir -p docs/wasm
+          mkdir -p shared-assets/wasm
 
-          # Copy the generated JS and WASM files to the docs folder
-          # wasm-pack puts them in the 'pkg' folder by default
-          cp pkg/simle_engine_core.js docs/wasm/
-          cp pkg/simle_engine_core_bg.wasm docs/wasm/
+          # 2. Define the source path (where wasm-pack just finished building)
+          SOURCE_PATH="archives/experiments/engine-src/pkg"
+
+          # 3. Copy the generated files to Docs (for GitHub Pages)
+          cp $SOURCE_PATH/simle_engine_core.js docs/wasm/
+          cp $SOURCE_PATH/simle_engine_core_bg.wasm docs/wasm/
+
+          # 4. Copy to Shared Assets (for your internal diagnostics)
+          cp $SOURCE_PATH/simle_engine_core.js shared-assets/wasm/
+          cp $SOURCE_PATH/simle_engine_core_bg.wasm shared-assets/wasm/
 
       - name: Update Version in package.json
-        # This keeps your NPM-style metadata in sync with the auto-builds
         run: |
           npm version patch --no-git-tag-version
 
       - name: Commit and Push Changes
-        # This step pushes the compiled Wasm and updated package.json back to your repo
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/wasm/ package.json
-          git commit -m "chore: auto-compile wasm engine and bump version [skip ci]" || echo "No changes to commit"
+
+          git add docs/wasm/ shared-assets/wasm/ package.json
+          git commit -m "chore: auto-compile wasm engine from experiments [skip ci]" || echo "No changes to commit"
           git push
