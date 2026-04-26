@@ -1,0 +1,25 @@
+{
+  "name": "@robwelan/simle-library",
+  "version": "1.0.0",
+  "description": "Standard for Multilingual Technical Education Powered by Rust/Wasm",
+  "main": "docs/index.html",
+  "scripts": {
+    "build:wasm": "wasm-pack build --target web",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx serve docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robwelan/simle-library.git"
+  },
+  "keywords": [
+    "wasm",
+    "rust",
+    "education",
+    "multilingual",
+    "simle"
+  ],
+  "author": "robwelan",
+  "license": "MIT",
+  "type": "module"
+}

@@ -1,0 +1,54 @@
+# File Path: .github/workflows/deploy.yml
+# This file must be placed in the '.github/workflows/' directory at the root of your repository.
+
+name: Build and Deploy SIMLE Engine
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build Wasm Engine
+        # Using the standard npm script for consistency
+        run: npm run build:wasm
+
+      - name: Sync Assets to Docs
+        run: |
+          # Create the destination directory if it doesn't exist
+          mkdir -p docs/wasm
+
+          # Copy the generated JS and WASM files to the docs folder
+          # wasm-pack puts them in the 'pkg' folder by default
+          cp pkg/simle_engine_core.js docs/wasm/
+          cp pkg/simle_engine_core_bg.wasm docs/wasm/
+
+      - name: Update Version in package.json
+        # This keeps your NPM-style metadata in sync with the auto-builds
+        run: |
+          npm version patch --no-git-tag-version
+
+      - name: Commit and Push Changes
+        # This step pushes the compiled Wasm and updated package.json back to your repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/wasm/ package.json
+          git commit -m "chore: auto-compile wasm engine and bump version [skip ci]" || echo "No changes to commit"
+          git push

@@ -1,0 +1,37 @@
+/* shared-assets/styles/base-layout.css */
+
+@layer base {
+  :root {
+    --gap: 2rem;
+  }
+
+  /* The Container for your parallel text */
+  .page-layout {
+    display: grid;
+    gap: var(--gap);
+    /* Automatically creates columns based on how many languages are injected */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: start;
+  }
+
+  /* Handle RTL dynamically with CSS Logical Properties */
+  [dir="rtl"] {
+    direction: rtl;
+    /* This ensures that 'start' is the right side automatically */
+    text-align: start;
+  }
+
+  /* Modern Ruby (Phonetic) Styling */
+  ruby {
+    ruby-align: center;
+    ruby-position: over; /* Puts pinyin/phonetic above */
+  }
+
+  rt {
+    font-size: 0.65em;
+    font-weight: 400;
+    color: color-mix(in srgb, currentColor, transparent 30%); /* Modern color mixing */
+    user-select: none; /* Prevents pinyin from being copied with the text */
+  }
+}

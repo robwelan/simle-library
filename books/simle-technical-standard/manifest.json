@@ -1,0 +1,15 @@
+{
+  "simle_version": "1.0.0",
+  "title": "SIMLE Technical Standard",
+  "identifier": "org.simle.standard.v1",
+  "author": "Robert Michael Welan",
+  "license": "MIT",
+  "language_default": "en",
+  "contents": [
+    {
+      "id": "intro",
+      "src": "content/intro.en.md",
+      "title": "Introduction to the Standard"
+    }
+  ]
+}

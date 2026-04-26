@@ -1,0 +1,7 @@
+# --- SIMLE Project Git Ignore ---
+
+# Ignore local build outputs
+dist/
+
+# Ignore the private archives in here (drafts, experiments, raw assets)
+archives/

@@ -1,0 +1,44 @@
+/* shared-assets/styles/base-theme.css */
+
+@layer theme {
+  :root {
+    /* Define the color scheme support to the browser */
+    color-scheme: light dark;
+
+    /* 1. Light Mode Palette */
+    --bg-light: #ffffff;
+    --text-light: #1a1a1a;
+    --accent-light: #0066cc;
+    --ruby-light: #666666;
+
+    /* 2. Dark Mode Palette */
+    --bg-dark: #121212;
+    --text-dark: #f0f0f0;
+    --accent-dark: #4da6ff;
+    --ruby-dark: #a0a0a0;
+
+    /* 3. The "Magic" Variables */
+    /* Using the new light-dark() function (Chrome 123+, Safari 17.4+) */
+    --page-bg: light-dark(var(--bg-light), var(--bg-dark));
+    --main-text: light-dark(var(--text-light), var(--text-dark));
+    --accent-color: light-dark(var(--accent-light), var(--accent-dark));
+    --ruby-color: light-dark(var(--ruby-light), var(--ruby-dark));
+  }
+
+  /* Apply to the document */
+  body {
+    background-color: var(--page-bg);
+    color: var(--main-text);
+    /* Smooth transition when switching themes */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Linking back to your Ruby Styles */
+  rt {
+    color: var(--ruby-color);
+  }
+
+  a {
+    color: var(--accent-color);
+  }
+}

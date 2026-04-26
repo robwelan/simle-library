@@ -1,0 +1,51 @@
+/* shared-assets/styles/base-reset.css */
+
+@layer reset {
+  /* 1. Box sizing & Fluidity */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 2. Text rendering & Smoothing */
+  html {
+    -webkit-text-size-adjust: none; /* Prevent font-size inflation on mobile */
+    text-size-adjust: none;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    hanging-punctuation: first last; /* Modern typography feature */
+  }
+
+  /* 3. Media responsiveness (the modern way) */
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+    height: auto; /* Preserve aspect ratio */
+  }
+
+  /* 4. Remove list styles (you'll style these in your book layer) */
+  ol, ul, menu {
+    list-style: none;
+  }
+
+  /* 5. Modern Logical Properties (Critical for RTL) */
+  /* Instead of margin-left/right, we use inline-start/end */
+  article {
+    padding-inline: max(2rem, 5vw);
+    padding-block: 2rem;
+  }
+
+  /* 6. Form elements standardization */
+  input, button, textarea, select {
+    font: inherit;
+    color: currentColor;
+  }
+
+  /* 7. Smooth scrolling (only if user doesn't mind) */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
