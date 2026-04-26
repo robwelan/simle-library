@@ -1,21 +1,22 @@
 # File Path: .github/workflows/deploy.yml
-# This workflow now targets the root directory for the Rust build.
-
 name: Build and Deploy SIMLE Engine
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+  workflow_dispatch:          # Allows you to manually trigger the agent from the Actions tab
 
 env:
-  # Opt-in to Node 24 early to clear the deprecation warning
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-wasm:
     runs-on: ubuntu-latest
+    # CRITICAL: This gives the agent permission to push files to your repo
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Repository
@@ -30,28 +31,24 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build Wasm Engine
-        # Since Cargo.toml is now in the root, we no longer need 'working-directory'
+        # Runs in root where Cargo.toml and package.json are located
         run: wasm-pack build --target web
 
       - name: Sync Assets to Docs and Shared Assets
         run: |
-          # 1. Create destination directories
           mkdir -p docs/wasm
           mkdir -p shared-assets/wasm
-
-          # 2. Define the source path (wasm-pack builds into /pkg by default)
           SOURCE_PATH="pkg"
 
-          # 3. Copy the generated files to Docs (for GitHub Pages)
+          # Copy to both production (Pages) and development folders
           cp $SOURCE_PATH/simle_engine_core.js docs/wasm/
           cp $SOURCE_PATH/simle_engine_core_bg.wasm docs/wasm/
-
-          # 4. Copy to Shared Assets (for your internal diagnostics)
           cp $SOURCE_PATH/simle_engine_core.js shared-assets/wasm/
           cp $SOURCE_PATH/simle_engine_core_bg.wasm shared-assets/wasm/
 
       - name: Update Version in package.json
         run: |
+          # Increment the patch version (e.g., 1.0.0 -> 1.0.1) without creating a git tag
           npm version patch --no-git-tag-version
 
       - name: Commit and Push Changes
@@ -60,5 +57,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git add docs/wasm/ shared-assets/wasm/ package.json
-          git commit -m "chore: auto-compile wasm engine from root [skip ci]" || echo "No changes to commit"
-          git push
+          # Only commit if files actually changed. [skip ci] prevents infinite loops.
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-compile wasm and bump version [skip ci]" && git push)
