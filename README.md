@@ -4,7 +4,7 @@
 
 ## **🌐 Live Demo & Library**
 
-[Launch Live Demo & Library](https://robwelan.github.io/simle-library/){:target="_blank"}
+<a href="https://robwelan.github.io/simle-library/" target="_blank">Launch Live Demo & Library</a>
 
 ## **📈 Project Evolution & Readiness**
 
