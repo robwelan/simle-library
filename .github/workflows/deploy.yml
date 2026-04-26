@@ -1,5 +1,5 @@
 # File Path: .github/workflows/deploy.yml
-# This workflow targets the experimental sub-directory for the Rust build.
+# This workflow now targets the root directory for the Rust build.
 
 name: Build and Deploy SIMLE Engine
 
@@ -30,8 +30,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build Wasm Engine
-        # We target the sub-directory where your Cargo.toml actually lives.
-        working-directory: ./archives/experiments/engine-src
+        # Since Cargo.toml is now in the root, we no longer need 'working-directory'
         run: wasm-pack build --target web
 
       - name: Sync Assets to Docs and Shared Assets
@@ -40,8 +39,8 @@ jobs:
           mkdir -p docs/wasm
           mkdir -p shared-assets/wasm
 
-          # 2. Define the source path (where wasm-pack just finished building)
-          SOURCE_PATH="archives/experiments/engine-src/pkg"
+          # 2. Define the source path (wasm-pack builds into /pkg by default)
+          SOURCE_PATH="pkg"
 
           # 3. Copy the generated files to Docs (for GitHub Pages)
           cp $SOURCE_PATH/simle_engine_core.js docs/wasm/
@@ -61,5 +60,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git add docs/wasm/ shared-assets/wasm/ package.json
-          git commit -m "chore: auto-compile wasm engine from experiments [skip ci]" || echo "No changes to commit"
+          git commit -m "chore: auto-compile wasm engine from root [skip ci]" || echo "No changes to commit"
           git push
