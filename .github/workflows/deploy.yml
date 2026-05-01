@@ -12,6 +12,12 @@ on:
       - master
   workflow_dispatch:
 
+# This block prevents the "Higher Priority" cancellation errors by
+# allowing GitHub to cancel an older, pending run to favor the newest push.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -48,12 +54,14 @@ jobs:
           cp $SOURCE_PATH/simle_engine_core.js shared-assets/wasm/
           cp $SOURCE_PATH/simle_engine_core_bg.wasm shared-assets/wasm/
 
-          # 2. Sync Content (The "Symlink" fix)
-          # We physically copy the root 'books' folder into 'docs'
-          # This makes them accessible via relative paths on GitHub Pages
+          # 2. Sync Content
+          # Physically copy the root 'books' folder into 'docs'
+          # so GitHub Pages can serve them from the same root.
           if [ -d "books" ]; then
             echo "Copying books folder to docs for deployment..."
-            cp -r books/ docs/
+            # Using -rf to ensure existing content in docs/books is updated correctly
+            rm -rf docs/books
+            cp -r books docs/
           else
             echo "Warning: 'books' directory not found at root."
           fi
@@ -70,4 +78,5 @@ jobs:
           # Include docs/books in the git add to ensure content updates are pushed
           git add docs/wasm/ docs/books/ shared-assets/wasm/ package.json
 
+          # [skip ci] is used to prevent the bot's own commit from triggering another build loop
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: sync wasm and books content [skip ci]" && git push)
