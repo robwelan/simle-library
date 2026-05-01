@@ -1,6 +1,6 @@
 {
   "name": "@robwelan/simle-library",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Standard for Multilingual Technical Education Powered by Rust/Wasm",
   "main": "docs/index.html",
   "scripts": {
