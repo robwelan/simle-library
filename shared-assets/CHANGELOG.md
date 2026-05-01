@@ -2,6 +2,22 @@
 
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0, this project is considered to be in a **Pre-Alpha / Draft** state.
 
+## **\[0.0.5-dev\] \- 2024-05-29**
+
+### **Status: Dynamic Configuration & Path Decoupling**
+
+Decoupled the library interface from hardcoded directory structures by implementing a configuration-driven path resolution system.
+
+### **Added**
+
+* **Configuration-Driven Routing:** Integrated a fetch-based lookup of paths.json to dynamically determine the search\_dir, allowing the library to locate book modules even if the folder names are changed in the environment configuration.  
+* **Intelligent Path Normalization:** Added logic to resolve relative sibling paths (e.g., transitioning from /docs/ to /books/) based on the root manifest configuration.
+
+### **Changed**
+
+* **Dynamic Asset Resolution:** Refined the image and reader URL generation logic to use the baseBooksUrl derived from the environment config, eliminating "broken link" issues during cross-repository deployments.  
+* **Manifest Loading Logic:** Updated the initialization sequence to ensure configuration constants are resolved prior to parsing library.json.
+
 ## **\[0.0.4-dev\] \- 2024-05-28**
 
 ### **Status: Interactive Library Interface**
@@ -44,7 +60,8 @@ Refined the asset mapping strategy to support multi-lingual covers by decoupling
 
 ### **Added**
 
-* **Localized Asset Schema:** Integrated \[cover\_wordmarks\] into the meta.toml specification to allow for language-specific visual branding.  
+* **Localized Asset Schema:** Integrated![][image1]  
+  into the meta.toml specification to allow for language-specific visual branding.  
 * **Asset Specification Document:** Created comprehensive technical requirements for background art (9:16/16:9) and wordmark transparency.  
 * **3x3 Grid Alignment Standards:** Established "tight-crop" rules for wordmark assets to ensure predictable layout positioning.
 
@@ -72,6 +89,14 @@ Finalized the simplified repository hierarchy and asset management strategy. Thi
 
 ### **Changed**
 
-* **Simplified Hierarchy:** Removed the experimental library/\[category\]/\[author\] nested structure in favor of a flat /books/ directory to improve developer ergonomics.
+* **Simplified Hierarchy:** Removed the experimental library/![][image2]  
+  /![][image3]  
+  nested structure in favor of a flat /books/ directory to improve developer ergonomics.
 
-*Standard Version: 0.0.4-dev* *File Name: CHANGELOG.md*
+*Standard Version: 0.0.5-dev* *File Name: CHANGELOG.md*
+
+[image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmwAAAAvCAYAAABexpbOAAAEU0lEQVR4Xu3abajeYxwH8J0Z5THKms7Ozn3O2ZgWouPF8tjwQiJaG/JUGwrhhYeyhZqHspJYaE0WyeOaTHmcJYk1SjLmhSblYSlFK29Wmu+1XZf+uzFTVkufT/36/67fdf2v/3Xfr37973vCBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPifGhkZub7X6/2UuKt/7r+WZ5yS2J54uX8OAIDdGB4enpc4u7++N5SGLU3iov46AAB/byBN1Pf9xb0lz/ohl4n9dQCAf2VoaOjo4eHhF0ZGRtakwXii1JIfnlia8ZeJz9va5G8kVpc895w/Ojp6RpvL+usSr2b+w8yNT58+fVrZr9aXpPZWnnV8W/9Xsv75xPqkA2VczpXxbbnOnzZt2ultXTlfeU45X/Jza+2BxGeJi8o5yz1tfcavJb5J3JfYXmpTp04dSr4x6y7O9aX62ebm/odzXZW4vd1f97gssTaxIrG41uYkVpc3domnkj83efLkQ8rc+Pj4/qVW161MvN/ZrtTKXu/keSPdOgDALtJATe3VJi3Nxam1qSq1Z9qa5CclFpbGJL3Fgl5teOo9V9Y1panb8SYp+WOpX1CatzpeW6/P7q45KQ1OuZbmppNvT4yWPHteVWvf9p2vrFmYcx+YNctnzpx56JQpUw5ObU6m90ttQ2e/1xObS1OV+pvJP0l82tnr1+6+Y2Njx9T8vMTVJS9NapkreT7Oovp97fhPXK4PDQ4OHlTz+xNzEw+W5jVrX2x71+9mUmIgjehxrQ4A8CdpJpaleZjdV7sntTPbOPmFaW6uLXmu72X+izaX8ax6z/bStJS3U61W1Gbmljb+J7n3iN6uTdPmlmfvY2ut/C/sj/OVcTtf8k2tXqQ+v8y3cfKticc747LXHW2c9a905r7u5OtnzJhxWM0XJ7Z15i5P03VyGzfZ96PM/Zi4s38utXvLs8u+/XMAALtIw/BBd1yakm4TURuun9u4Nhln1fyabr3lMZDG57RaXzFh55ukPZL77u7VZmhwcPDI5LeWPNe5nTUbWl7OV99W7Xjb13eO0jSVn3V/a+Oyd/mMo6OjJ9Txlgn1zWDWLig/D7c8MTt7jpe3cd19yx6ZW5Lrsjr+qs01mb+k3ZM9bs74qLZ36psyfqTOjY+NjQ137wUA2EVpJtLATC55/anv49RumjVr1gGllvG6XueNWmlC0mxcmjgx+cpOfWsnX524sebftfqeyLOvaI1OrjdkvLzWu2++tpTz1YZuXfkvWq0/mfilrSty3zltv+Tzkm+sP4/u+I9cPsfTbW2v8zNre27m19S5d+vUpLJfOWc962jbvyu1R9tZejv/Czcxey2t423D9f91I523ewAA+4w0KW/3R5qYVf3rAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9g2/A8udAhy+0I6IAAAAAElFTkSuQmCC>
+
+[image2]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmwAAAAvCAYAAABexpbOAAAC+klEQVR4Xu3bO4hdVRQG4IlvRPA5Ru7cO3fOzIBhwEIGRVBSaCPxhZhGBEEQFAIKqQxiYaGiYGMlWhiDiZUptPGBjYVipYUWVoIPglqIhYha6L/Gs5nDqWJEGDLfB5u99tp7nzvlzznMwgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADsEPP5/N5xDwCAHSSB7bNxDwCAHWJ5efmWjLvGfQAA/j/nrqysPJIQ9mnN1ZhMJhenPjKfzz9J/7H2CTTzB1l/U3ON9oDUBzI+HL95yzP2Zbyd/lsZxwb957P+OOOL1Levra3NUr+a+tGMp/Mb702n0+tS35P+ycw31b30rmg1AMCukUD0x2w2W6s6Qem5vvdX13XX9vWT6+vrF1adsHRR1r9v397a/zX9axK6rm6Br+//kvFM1XnuauoH+v63gzPX129VqOvXWyEw8/H0VnLv5vrbUj7RP+douwsAsCtMp9OlhKN3hr3JZHJVAtJHbZ2Q9O6gvq0CVlsnyC1m/WO9Fcv8Ysatba/OLS0tTfv64RYKh/f7N2hb6/5vOdz2mvzms+059XZvvA8AcFZLQDqQEHRnW3ddtz+9OyqY1Toh6+4KVOnfmPlQBbl6C7axsXFBfbasEJb5we0nbsvZ1/vyvNz5ofXr02ur0/958HbtlTrb9kr/Rm8r0OXe48OwBwCwKywuLl6SEPRC1aurq5emPpGQdFnC0cHqZf15haSMYxldxtcZL2X/5cz35cie1K8t/BO09qT3VHt2nvN+zfUZcxi0Up+qud7kpf5y8Bbuu3Zm4JzWz/x9xk/jAwAA/EcV9s70U+ZsNpsk0F1ZdYW+hMCHxmcAAPiXNjc3z0+4+q2tU3/Vdd3e4ZnTlbt/1ifXBLX7E95uGO8DAHCGErTeqH9WyHwy8+Xj/dOV+4czTmS8Od4DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBv8DbG3jttdx/uGAAAAAElFTkSuQmCC>
+
+[image3]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmwAAAAvCAYAAABexpbOAAACTElEQVR4Xu3cz4uNURgHcAZFfm6mKc3cO/c2dRdKaYqNhEKxUdiILCysyNYkZaEsZSWllAXJjx0xfmTDZlYWFmTjD5CNhZH4Hp1Xb7dZqqE+n3o6z3mec953+/Q2c5csAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgH/cxMTExva+2+3eS/zsdDqb2nUAABZJGdAWqH0crgEAsAg6nc728jWtXev1eptTO9CuAQDwF2TIOpqYTVxPzDT1DGV3sn/e7CcnJ5/W9VR6n9KbL/f6/X6n1s+mfji1u4mHiS3N3VhW3zGXc+fq+cuJt4mDqT/O3SOt8wAAFBmU9idOlrzX6+3o1q9mGaJ2Zlma/YfW2T9f1JJ/S1xq9jm/Mvuvrf7rxP2az6b/vtX7nOHs5vj4+Kqs1waDwdqxsbHVqe9qzgAAUGVIejM1NbWu5jOJ+aaXIWtfe0grX9WavNQz4O1t9fYMDXTfUzvdnE2cb/V+JG7V/F1TBwBgyOjo6JqhIWs+Q9rFrFfLPgPXq+SPSp7hbGt6J1K7UM/O1jNPsizPfi7xoPWsF2Ut/0la3tHv99fX1kgZ/PKsDVmPt98PAMACMjC9rGkZuspPchwrUQr1b9ieJR3JejtD1rbUpuu9MtSVO4fqvtz9/UWtDILJz2TIG9Re+do2HSvyjCvZ7671G4kvJQcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4L/2CyOEb+y1CuseAAAAAElFTkSuQmCC>

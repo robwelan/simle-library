@@ -1,0 +1,16 @@
+{
+  "project_root": "./",
+  "source": {
+    "books_dir": "books/",
+    "shared_assets": "shared-assets/",
+    "meta_filename": "meta.toml"
+  },
+  "distribution": {
+    "docs_dir": "docs/",
+    "manifest_file": "docs/library.json"
+  },
+  "web_paths": {
+    "books_base": "books",
+    "assets_base": "assets/images"
+  }
+}

@@ -3,21 +3,36 @@ import json
 import tomllib
 
 # ==========================================
-# CONFIGURATION / CONSTANTS
+# CONFIGURATION LOADED FROM JSON
 # ==========================================
 
-# Since the script is inside /src/, and books/docs are also in /src/:
-SEARCH_DIR = "books"
-OUTPUT_DIR = "docs"
+def load_paths():
+    """Reads project paths from paths.json in the script's root directory."""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    paths_file = os.path.join(script_dir, "paths.json")
 
-# Internal Book Structure
+    # Default values in case paths.json is missing or broken
+    config = {
+        "search_dir": "books",
+        "output_dir": "docs"
+    }
+
+    if os.path.exists(paths_file):
+        try:
+            with open(paths_file, "r", encoding="utf-8") as f:
+                config.update(json.load(f))
+            print(f"[✓] Loaded configuration from {paths_file}")
+        except Exception as e:
+            print(f"[!] Warning: Could not parse paths.json. Using defaults. Error: {e}")
+    else:
+        print(f"[!] Warning: paths.json not found in {script_dir}. Using defaults.")
+
+    return config
+
+# Internal Book Structure Constants
 BOOK_TOML_NAME = "book.toml"
 CONTENT_DIR_NAME = "content"
 META_TOML_NAME = "meta.toml"
-ASSETS_DIR_NAME = "assets"
-IMAGES_DIR_NAME = "images"
-
-# Fallbacks
 DEFAULT_ICON = "📚"
 DEFAULT_THEME = "#0984e3"
 
@@ -65,7 +80,6 @@ def get_book_metadata(book_folder_path):
                 description = meta_data.get("description", description)
 
         # 4. Resolve Image Filenames
-        # Note: We only store the filename here to avoid path duplication in the UI
         cover_cfg = book_config.get("cover", {})
         ls_filename = cover_cfg.get("cover_background_landscape", "")
         pt_filename = cover_cfg.get("cover_background_portrait", "")
@@ -80,8 +94,8 @@ def get_book_metadata(book_folder_path):
             "cover_color": project.get("theme_color", DEFAULT_THEME),
             "path": os.path.basename(book_folder_path),
             "active_locale": default_locale,
-            "landscape": ls_filename, # Pure filename
-            "portrait": pt_filename    # Pure filename
+            "landscape": ls_filename,
+            "portrait": pt_filename
         }
 
     except Exception as e:
@@ -89,42 +103,45 @@ def get_book_metadata(book_folder_path):
         return None
 
 def build_library():
-    """Scans the search directory and writes library.json."""
+    """Scans the search directory and writes library.json based on paths.json."""
 
-    # Get the directory where THIS script is located
+    # 1. Load dynamic paths
+    config = load_paths()
+    SEARCH_DIR = config.get("search_dir")
+    OUTPUT_DIR = config.get("output_dir")
+
+    # 2. Resolve absolute paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    abs_search_dir = os.path.normpath(os.path.join(script_dir, SEARCH_DIR))
+    abs_output_dir = os.path.normpath(os.path.join(script_dir, OUTPUT_DIR))
 
-    # Resolve absolute paths to sibling folders
-    abs_search_dir = os.path.join(script_dir, SEARCH_DIR)
-    abs_output_dir = os.path.join(script_dir, OUTPUT_DIR)
-
-    print("--- PATH DEBUGGING ---")
+    print("\n--- PATH DEBUGGING ---")
     print(f"Script Dir: {script_dir}")
     print(f"Looking in: {abs_search_dir}")
     print(f"Writing to: {abs_output_dir}")
-    print("----------------------")
+    print("----------------------\n")
 
     if not os.path.exists(abs_search_dir):
-        print(f"ERROR: '{abs_search_dir}' not found.")
+        print(f"ERROR: The search directory '{abs_search_dir}' does not exist.")
         return
 
     if not os.path.exists(abs_output_dir):
-        print(f"Creating directory: {abs_output_dir}")
-        os.makedirs(abs_output_dir)
+        print(f"Creating output directory: {abs_output_dir}")
+        os.makedirs(abs_output_dir, exist_ok=True)
 
     library = []
 
-    # Iterate through folders in /src/books/
+    # 3. Iterate through folders in search directory
     for item in sorted(os.listdir(abs_search_dir)):
         book_folder = os.path.join(abs_search_dir, item)
         if os.path.isdir(book_folder):
             if os.path.exists(os.path.join(book_folder, BOOK_TOML_NAME)):
-                print(f"--> Found: {item}")
+                print(f"--> Processing: {item}")
                 metadata = get_book_metadata(book_folder)
                 if metadata:
                     library.append(metadata)
 
-    # Output to /src/docs/library.json
+    # 4. Output to library.json
     output_file = os.path.join(abs_output_dir, "library.json")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(library, f, indent=4, ensure_ascii=False)
