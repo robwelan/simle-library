@@ -6,10 +6,10 @@ version = "1.0.0"
 book_cover_layout = "layout-classic"
 
 # Asset for horizontal displays (Desktop/Tablets) | Specs: 16:9 | CSS: --bg-landscape
-cover_background_landscape = "assets/images/cover_art_landscape.webp"
+cover_background_landscape = "cover_art_landscape.webp"
 
 # Asset for vertical displays (Mobile) | Specs: 9:16 | CSS: --bg-portrait
-cover_background_portrait = "assets/images/cover_art_portrait.webp"
+cover_background_portrait = "cover_art_portrait.webp"
 
 [structure]
 # Primary locale must be first. Compliance: ISO 639-1 / BCP 47

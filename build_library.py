@@ -2,24 +2,40 @@ import os
 import json
 import tomllib
 
+# ==========================================
+# CONFIGURATION / CONSTANTS
+# ==========================================
+
+# Since the script is inside /src/, and books/docs are also in /src/:
+SEARCH_DIR = "books"
+OUTPUT_DIR = "docs"
+
+# Internal Book Structure
+BOOK_TOML_NAME = "book.toml"
+CONTENT_DIR_NAME = "content"
+META_TOML_NAME = "meta.toml"
+ASSETS_DIR_NAME = "assets"
+IMAGES_DIR_NAME = "images"
+
+# Fallbacks
+DEFAULT_ICON = "📚"
+DEFAULT_THEME = "#0984e3"
+
 def get_book_metadata(book_folder_path):
-    """
-    Parses books/[folder]/book.toml to find the locale list,
-    then looks in books/[folder]/content/[locale]/meta.toml for details.
-    """
-    book_toml_path = os.path.join(book_folder_path, "book.toml")
+    """Parses a book directory for metadata and localized strings."""
+    book_toml_path = os.path.join(book_folder_path, BOOK_TOML_NAME)
     if not os.path.exists(book_toml_path):
         return None
 
     try:
-        # 1. Load the main book.toml
+        # 1. Load the main configuration
         with open(book_toml_path, "rb") as f:
             book_config = tomllib.load(f)
 
         project = book_config.get("project", {})
         book_id = project.get("id", "unknown-id")
 
-        # 2. Determine the locale (first item in locales array)
+        # 2. Determine the locale for the preview
         structure = book_config.get("structure", {})
         locales = structure.get("locales", [])
 
@@ -29,12 +45,16 @@ def get_book_metadata(book_folder_path):
 
         default_locale = locales[0]
 
-        # 3. Path to meta.toml: books/[folder]/content/[locale]/meta.toml
-        content_dir = os.path.join(book_folder_path, "content", default_locale)
-        meta_path = os.path.join(content_dir, "meta.toml")
+        # 3. Handle localized metadata
+        meta_path = os.path.join(
+            book_folder_path,
+            CONTENT_DIR_NAME,
+            default_locale,
+            META_TOML_NAME
+        )
 
         title = project.get("title", "Unknown Title")
-        author = "Unknown Author"
+        author = project.get("author", "Unknown Author")
         description = "No description available."
 
         if os.path.exists(meta_path):
@@ -43,17 +63,12 @@ def get_book_metadata(book_folder_path):
                 title = meta_data.get("title", title)
                 author = meta_data.get("author", author)
                 description = meta_data.get("description", description)
-        else:
-            print(f"  [!] Missing meta.toml at: {meta_path}")
 
-        # 4. Resolve Cover Images
+        # 4. Resolve Image Filenames
+        # Note: We only store the filename here to avoid path duplication in the UI
         cover_cfg = book_config.get("cover", {})
-        ls_rel = cover_cfg.get("cover_background_landscape", "")
-        pt_rel = cover_cfg.get("cover_background_portrait", "")
-
-        # Use forward slashes for web compatibility
-        cover_ls = f"content/{default_locale}/{ls_rel}".replace("\\", "/")
-        cover_pt = f"content/{default_locale}/{pt_rel}".replace("\\", "/")
+        ls_filename = cover_cfg.get("cover_background_landscape", "")
+        pt_filename = cover_cfg.get("cover_background_portrait", "")
 
         return {
             "id": book_id,
@@ -61,58 +76,61 @@ def get_book_metadata(book_folder_path):
             "title": title,
             "author": author,
             "description": description,
-            # Ensure path is relative to the library root
-            "path": book_folder_path.replace("\\", "/"),
+            "icon": project.get("icon", DEFAULT_ICON),
+            "cover_color": project.get("theme_color", DEFAULT_THEME),
+            "path": os.path.basename(book_folder_path),
             "active_locale": default_locale,
-            "cover": {
-                "landscape": cover_ls,
-                "portrait": cover_pt
-            }
+            "landscape": ls_filename, # Pure filename
+            "portrait": pt_filename    # Pure filename
         }
 
     except Exception as e:
         print(f"  [!] Error processing {book_folder_path}: {e}")
         return None
 
-def build_library(search_dir="books", output_dir="docs"):
-    """
-    Scans the 'books' directory for folders containing book.toml
-    and writes library.json to the 'docs' directory.
-    """
-    if not os.path.exists(search_dir):
-        print(f"Error: Directory '{search_dir}' not found.")
+def build_library():
+    """Scans the search directory and writes library.json."""
+
+    # Get the directory where THIS script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Resolve absolute paths to sibling folders
+    abs_search_dir = os.path.join(script_dir, SEARCH_DIR)
+    abs_output_dir = os.path.join(script_dir, OUTPUT_DIR)
+
+    print("--- PATH DEBUGGING ---")
+    print(f"Script Dir: {script_dir}")
+    print(f"Looking in: {abs_search_dir}")
+    print(f"Writing to: {abs_output_dir}")
+    print("----------------------")
+
+    if not os.path.exists(abs_search_dir):
+        print(f"ERROR: '{abs_search_dir}' not found.")
         return
 
-    # Ensure the output directory (docs) exists
-    if not os.path.exists(output_dir):
-        print(f"Creating directory: {output_dir}")
-        os.makedirs(output_dir)
+    if not os.path.exists(abs_output_dir):
+        print(f"Creating directory: {abs_output_dir}")
+        os.makedirs(abs_output_dir)
 
-    print(f"Scanning for books in: {os.path.abspath(search_dir)}")
     library = []
 
-    # Iterate through folders inside 'books/'
-    for item in os.listdir(search_dir):
-        book_folder = os.path.join(search_dir, item)
+    # Iterate through folders in /src/books/
+    for item in sorted(os.listdir(abs_search_dir)):
+        book_folder = os.path.join(abs_search_dir, item)
         if os.path.isdir(book_folder):
-            if os.path.exists(os.path.join(book_folder, "book.toml")):
-                print(f"--> Found book folder: {item}")
+            if os.path.exists(os.path.join(book_folder, BOOK_TOML_NAME)):
+                print(f"--> Found: {item}")
                 metadata = get_book_metadata(book_folder)
                 if metadata:
                     library.append(metadata)
 
-    # Use a dictionary as the root object
-    output_data = library
-
-    # Target path: docs/library.json
-    output_file = os.path.join(output_dir, "library.json")
-
+    # Output to /src/docs/library.json
+    output_file = os.path.join(abs_output_dir, "library.json")
     with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=4, ensure_ascii=False)
+        json.dump(library, f, indent=4, ensure_ascii=False)
 
     print("-" * 30)
     print(f"Success: Generated {output_file} with {len(library)} books.")
 
 if __name__ == "__main__":
-    # Assumes script is run from project root where /books and /docs live
-    build_library("books", "docs")
+    build_library()

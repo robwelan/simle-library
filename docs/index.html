@@ -3,278 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMLE | Multilingual Learning Engine</title>
+    <title>SIMLE Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #0984e3;
-            --dark: #2d3436;
-            --light: #f4f4f9;
-            --success: #00b894;
-            --error: #d63031;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-        }
-
-        header {
-            background: white;
-            padding: 4rem 2rem;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: -3rem auto 4rem;
-            padding: 0 1.5rem;
-        }
-
-        .hero-card {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-            text-align: center;
-        }
-
-        .engine-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 20px;
-            background: #f8f9fa;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            border: 1px solid #eee;
-        }
-
-        .dot {
-            height: 12px;
-            width: 12px;
-            background-color: #cbd5e0;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .dot.active {
-            background-color: var(--success);
-            box-shadow: 0 0 8px var(--success);
-        }
-
-        .dot.error {
-            background-color: var(--error);
-            box-shadow: 0 0 8px var(--error);
-        }
-
-        h1 { margin: 0 0 0.5rem; font-size: 2.8rem; letter-spacing: -1px; }
-        p.subtitle { font-size: 1.1rem; color: #636e72; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-        }
-
-        .book-card {
-            background: white;
-            border-radius: 16px;
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(0,0,0,0.05);
         }
-
-        .book-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            border-color: var(--primary);
-        }
-
-        .book-cover {
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 4rem;
-            position: relative;
-            background: linear-gradient(135deg, var(--primary), #74b9ff);
-        }
-
-        .book-info { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .book-title { font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem; line-height: 1.2; }
-        .book-author { color: #a0aec0; font-size: 0.9rem; margin-bottom: 1.2rem; font-weight: 500; }
-        .book-description { font-size: 0.95rem; color: #4a5568; margin-bottom: 2rem; flex-grow: 1; }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            display: inline-block;
-            font-weight: 700;
-            text-align: center;
-            transition: opacity 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover { opacity: 0.9; }
-
-        .btn-secondary { background: #edf2f7; color: #4a5568; }
-
-        #loading-message {
-            text-align: center;
-            grid-column: 1 / -1;
-            padding: 5rem;
-            color: #718096;
-            font-weight: 500;
-        }
-
-        footer {
-            text-align: center;
-            padding: 6rem 2rem;
-            color: #a0aec0;
-            font-size: 0.85rem;
-        }
-
-        .error-box {
-            background: #fff5f5;
-            color: #c53030;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #feb2b2;
-            margin-top: 1rem;
-            font-size: 0.9rem;
+        .book-gloss {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 100%);
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen font-sans">
 
-    <header>
-        <div class="engine-status">
-            <span id="statusDot" class="dot"></span>
-            <span id="statusText">Engine: Initializing...</span>
+    <header class="bg-white border-b border-slate-200 py-10 mb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-4xl font-black text-slate-900 tracking-tighter">SIMLE <span class="text-blue-600">LIBRARY</span></h1>
+            <p class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold">Standardized Interactive Media & Learning Engine</p>
         </div>
-        <h1>SIMLE Library</h1>
-        <p class="subtitle">Open-source standard for high-performance, multilingual technical documentation.</p>
     </header>
 
-    <div class="container">
-        <div class="hero-card">
-            <h2>Welcome to the Library</h2>
-            <p>Every book here is generated from the SIMLE standard, featuring instant language switching and optimized typography.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <a href="https://github.com/robwelan/simle-library" class="btn">GitHub Repository</a>
-                <a href="http://docs.google.com/core-docs/simle-technical-standard" class="btn btn-secondary">Read Standard</a>
+    <main class="max-w-7xl mx-auto px-6 pb-24">
+        <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div class="col-span-full flex flex-col items-center py-20">
+                <div class="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <p class="mt-4 text-slate-400 font-medium">Loading Manifest...</p>
             </div>
         </div>
+    </main>
 
-        <div id="libraryGrid" class="grid">
-            <div id="loading-message">
-                <div class="spinner"></div>
-                Scanning library manifest...
-            </div>
-        </div>
-    </div>
+    <script>
+        // Configuration
+        // Use '../books' if this file is in /src/docs/ and books are in /src/books/
+        const BASE_BOOKS_URL = '../books';
+        const IMAGE_SUBFOLDER = 'assets/images';
 
-    <footer>
-        &copy; 2024 SIMLE Project. <br> Built with Rust, WebAssembly, and Markdown.
-    </footer>
+        async function initLibrary() {
+            const grid = document.getElementById('library-grid');
 
-    <script type="module">
-        // Using relative-to-module paths ensures it works regardless of the URL path
-        import init, { ping } from './wasm/simle_engine_core.js';
-
-        const grid = document.getElementById('libraryGrid');
-
-        async function loadLibrary() {
             try {
-                // Ensure we fetch relative to the current index.html location
+                // Fetch the library JSON generated by your Python script
                 const response = await fetch('./library.json');
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status} - Ensure library.json is in the /docs folder.`);
+                if (!response.ok) throw new Error('Could not load library.json');
 
                 const books = await response.json();
-                renderLibrary(books);
-            } catch (err) {
-                grid.innerHTML = `
-                    <div id="loading-message">
-                        <div class="error-box">
-                            <strong>Library Loading Error</strong><br>
-                            ${err.message}<br><br>
-                            <small>Make sure the build script generated 'docs/library.json'</small>
-                        </div>
-                    </div>`;
-                console.error("Library fetch failed:", err);
+
+                grid.innerHTML = books.map(book => {
+                    const bookFolder = (book.path || '').trim();
+                    const landscapeFile = (book.landscape || '').trim();
+                    const title = book.title || 'Untitled';
+                    const color = book.cover_color || '#3b82f6';
+                    const icon = book.icon || '📚';
+                    const version = book.version || '1.0.0';
+
+                    // URL to the book's specific index.html
+                    const readerUrl = `${BASE_BOOKS_URL}/${bookFolder}/index.html`;
+
+                    // Logic: ../books/[folder]/assets/images/[filename]
+                    const hasImage = landscapeFile !== "";
+                    const imageUrl = hasImage ? `${BASE_BOOKS_URL}/${bookFolder}/${IMAGE_SUBFOLDER}/${landscapeFile}` : null;
+
+                    if(hasImage) console.log(`Path for ${title}: ${imageUrl}`);
+
+                    return `
+                        <article class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-slate-200 flex flex-col h-full">
+                            <a href="${readerUrl}" class="block aspect-[16/9] overflow-hidden relative bg-slate-200">
+                                ${hasImage ? `
+                                    <img
+                                        src="${imageUrl}"
+                                        alt="${title}"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                        onerror="this.parentElement.querySelector('.fallback-ui').style.display='flex'; this.style.display='none';"
+                                    >
+                                    <!-- Dynamic Fallback (Hidden unless img fails) -->
+                                    <div class="fallback-ui hidden w-full h-full absolute inset-0 flex-col items-center justify-center text-white p-6 text-center" style="background-color: ${color}">
+                                        <div class="book-gloss absolute inset-0"></div>
+                                        <span class="text-4xl mb-2 relative z-10">${icon}</span>
+                                        <span class="font-bold text-sm relative z-10 uppercase tracking-wider">${title}</span>
+                                        <span class="text-[8px] opacity-50 mt-2 relative z-10 text-white">IMAGE LOAD ERROR</span>
+                                    </div>
+                                ` : `
+                                    <!-- No Image Defined in JSON -->
+                                    <div class="w-full h-full flex flex-col items-center justify-center text-white p-8 text-center relative" style="background-color: ${color}">
+                                        <div class="book-gloss absolute inset-0"></div>
+                                        <span class="text-5xl mb-4 relative z-10 transform group-hover:scale-110 transition-transform duration-500">${icon}</span>
+                                        <h3 class="font-black text-lg leading-tight relative z-10 drop-shadow-md">${title.toUpperCase()}</h3>
+                                        <div class="mt-4 w-12 h-1 bg-white/30 rounded-full relative z-10"></div>
+                                    </div>
+                                `}
+
+                                <div class="absolute top-4 left-4 bg-black/20 backdrop-blur-md text-[10px] font-bold text-white px-2 py-1 rounded-md border border-white/20">
+                                    v${version}
+                                </div>
+                            </a>
+
+                            <div class="p-8 flex flex-col flex-grow">
+                                <div class="mb-4">
+                                    <h2 class="text-2xl font-extrabold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">
+                                        <a href="${readerUrl}">${title}</a>
+                                    </h2>
+                                    <p class="text-sm text-slate-400 mt-1 font-semibold uppercase tracking-tighter">By ${book.author || 'Unknown'}</p>
+                                </div>
+                                <p class="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-8">
+                                    ${book.description || 'No description provided.'}
+                                </p>
+                                <div class="mt-auto">
+                                    <a href="${readerUrl}"
+                                       class="w-full inline-flex items-center justify-center text-center px-6 py-4 rounded-2xl font-bold text-sm transition-all duration-300 bg-slate-900 text-white hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-200 active:scale-95">
+                                        READ NOW
+                                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-500 font-bold">${error.message}</div>`;
             }
         }
 
-        function renderLibrary(books) {
-            if (!books || books.length === 0) {
-                grid.innerHTML = `<div id="loading-message">No books found in the library manifest.</div>`;
-                return;
-            }
-
-            grid.innerHTML = books.map(book => {
-                // Clean up paths: if they start with 'books/', assume relative to site root
-                const bookLink = book.path.startsWith('books/') ? `./${book.path}/index.html` : book.path;
-
-                return `
-                <a href="${bookLink}" class="book-card">
-                    <div class="book-cover" style="background: ${book.cover_color || '#0984e3'}">
-                        ${book.icon || '📚'}
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">by ${book.author || 'Anonymous'}</div>
-                        <p class="book-description">${book.description || 'No description available.'}</p>
-                        <span class="btn" style="background: ${book.cover_color || '#0984e3'}">Open Book</span>
-                    </div>
-                </a>
-            `}).join('');
-        }
-
-        async function startEngine() {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-
-            try {
-                // Point to the specific WASM file location
-                await init('./wasm/simle_engine_core_bg.wasm');
-
-                // If your wasm exports a ping function
-                try {
-                    ping();
-                    statusText.innerText = "Engine: Active (v1.2.0)";
-                } catch (e) {
-                    statusText.innerText = "Engine: Active";
-                }
-
-                statusDot.classList.add('active');
-            } catch (err) {
-                statusDot.classList.add('error');
-                statusText.innerText = "Engine: Failed";
-                console.warn("Wasm Engine could not be initialized. This might be expected if wasm binaries aren't built yet.", err);
-            }
-        }
-
-        // Initialize
-        startEngine();
-        loadLibrary();
+        window.onload = initLibrary;
     </script>
 </body>
 </html>

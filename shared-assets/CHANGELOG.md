@@ -2,6 +2,23 @@
 
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0, this project is considered to be in a **Pre-Alpha / Draft** state.
 
+## **\[0.0.4-dev\] \- 2024-05-28**
+
+### **Status: Interactive Library Interface**
+
+Developed the front-end interface for the SIMLE Library, providing a visual gateway to the distributed book modules.
+
+### **Added**
+
+* **Interactive Library UI:** Created a responsive, grid-based web interface (index.html) using Tailwind CSS to display books from the generated manifest.  
+* **Defensive Asset Loading:** Implemented a robust path-resolution script that dynamically constructs image URLs and handles fallback states (color/icon placeholders) if assets are missing or improperly path-referenced.  
+* **Dynamic Reader Integration:** Established a direct "Launch" pipeline that maps library items to their respective /books/{book-folder}/index.html entry points.
+
+### **Changed**
+
+* **Manifest Consumption:** Switched from a static file view to a dynamic fetch model with cache-busting logic to ensure the library always reflects the latest CI/CD manifest updates.  
+* **UI Polish:** Integrated hover transitions, glassmorphism effects for book covers, and a "Mobile-First" responsive design pattern.
+
 ## **\[0.0.3-dev\] \- 2024-05-27**
 
 ### **Status: Automation & Distribution Pipeline**
@@ -57,12 +74,4 @@ Finalized the simplified repository hierarchy and asset management strategy. Thi
 
 * **Simplified Hierarchy:** Removed the experimental library/\[category\]/\[author\] nested structure in favor of a flat /books/ directory to improve developer ergonomics.
 
-### **To-Do / Next Steps**
-
-* Implement the actual base-typography.css file.  
-* Compile the first iteration of engine\_core.wasm.  
-* Verify font loading across mobile and desktop environments.
-
-*Standard Version: 0.0.3-dev*
-
-*File Name: CHANGELOG.md*
+*Standard Version: 0.0.4-dev* *File Name: CHANGELOG.md*
