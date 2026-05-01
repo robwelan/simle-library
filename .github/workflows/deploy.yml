@@ -1,5 +1,4 @@
 # File Path: .github/workflows/deploy.yml
-# Force Refresh: Triggering GitHub Actions registration
 name: Build and Deploy SIMLE Engine
 
 on:
@@ -11,7 +10,7 @@ on:
     branches:
       - main
       - master
-  workflow_dispatch:          # Enables the manual "Run workflow" button in Actions tab
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -19,7 +18,6 @@ env:
 jobs:
   build-wasm:
     runs-on: ubuntu-latest
-    # CRITICAL: This gives the agent permission to push files to your repo
     permissions:
       contents: write
 
@@ -36,24 +34,32 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build Wasm Engine
-        # Runs in root where Cargo.toml and package.json are located
         run: wasm-pack build --target web
 
-      - name: Sync Assets to Docs and Shared Assets
+      - name: Sync Assets and Content to Docs
         run: |
           mkdir -p docs/wasm
           mkdir -p shared-assets/wasm
           SOURCE_PATH="pkg"
 
-          # Copy to both production (Pages) and development folders
+          # 1. Sync WASM binaries
           cp $SOURCE_PATH/simle_engine_core.js docs/wasm/
           cp $SOURCE_PATH/simle_engine_core_bg.wasm docs/wasm/
           cp $SOURCE_PATH/simle_engine_core.js shared-assets/wasm/
           cp $SOURCE_PATH/simle_engine_core_bg.wasm shared-assets/wasm/
 
+          # 2. Sync Content (The "Symlink" fix)
+          # We physically copy the root 'books' folder into 'docs'
+          # This makes them accessible via relative paths on GitHub Pages
+          if [ -d "books" ]; then
+            echo "Copying books folder to docs for deployment..."
+            cp -r books/ docs/
+          else
+            echo "Warning: 'books' directory not found at root."
+          fi
+
       - name: Update Version in package.json
         run: |
-          # Increment the patch version (e.g., 1.0.0 -> 1.0.1) without creating a git tag
           npm version patch --no-git-tag-version
 
       - name: Commit and Push Changes
@@ -61,6 +67,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add docs/wasm/ shared-assets/wasm/ package.json
-          # Only commit if files actually changed. [skip ci] prevents infinite loops.
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-compile wasm and bump version [skip ci]" && git push)
+          # Include docs/books in the git add to ensure content updates are pushed
+          git add docs/wasm/ docs/books/ shared-assets/wasm/ package.json
+
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: sync wasm and books content [skip ci]" && git push)
