@@ -10,109 +10,155 @@
             --dark: #2d3436;
             --light: #f4f4f9;
             --success: #00b894;
+            --error: #d63031;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--light);
             color: var(--dark);
+            line-height: 1.6;
         }
 
         header {
             background: white;
             padding: 4rem 2rem;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: -3rem auto 4rem;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
         }
 
         .hero-card {
             background: white;
             padding: 3rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
             text-align: center;
         }
 
         .engine-status {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: #eee;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            gap: 10px;
+            padding: 8px 20px;
+            background: #f8f9fa;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid #eee;
         }
 
         .dot {
-            height: 10px;
-            width: 10px;
-            background-color: #bbb;
+            height: 12px;
+            width: 12px;
+            background-color: #cbd5e0;
             border-radius: 50%;
             display: inline-block;
         }
 
-        .dot.active { background-color: var(--success); }
-        .dot.error { background-color: #ff7675; }
+        .dot.active {
+            background-color: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
 
-        h1 { margin: 0 0 1rem; font-size: 2.5rem; color: var(--dark); }
-        p.subtitle { font-size: 1.2rem; color: #636e72; margin-bottom: 2rem; }
+        .dot.error {
+            background-color: var(--error);
+            box-shadow: 0 0 8px var(--error);
+        }
+
+        h1 { margin: 0 0 0.5rem; font-size: 2.8rem; letter-spacing: -1px; }
+        p.subtitle { font-size: 1.1rem; color: #636e72; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
-            margin-top: 3rem;
+            margin-top: 4rem;
         }
 
         .book-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            cursor: pointer;
-            border: 1px solid #eee;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .book-card:hover { transform: translateY(-5px); }
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
 
         .book-cover {
-            height: 160px;
-            background: var(--primary);
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 3rem;
+            font-size: 4rem;
+            position: relative;
+            background: linear-gradient(135deg, var(--primary), #74b9ff);
         }
 
-        .book-info { padding: 1.5rem; }
-        .book-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .book-author { color: #b2bec3; font-size: 0.9rem; margin-bottom: 1rem; }
+        .book-info { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .book-title { font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem; line-height: 1.2; }
+        .book-author { color: #a0aec0; font-size: 0.9rem; margin-bottom: 1.2rem; font-weight: 500; }
+        .book-description { font-size: 0.95rem; color: #4a5568; margin-bottom: 2rem; flex-grow: 1; }
 
         .btn {
             background: var(--primary);
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 10px;
             display: inline-block;
-            font-weight: bold;
+            font-weight: 700;
+            text-align: center;
+            transition: opacity 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-secondary { background: #edf2f7; color: #4a5568; }
+
+        #loading-message {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 5rem;
+            color: #718096;
+            font-weight: 500;
         }
 
         footer {
             text-align: center;
-            padding: 4rem 2rem;
-            color: #b2bec3;
+            padding: 6rem 2rem;
+            color: #a0aec0;
+            font-size: 0.85rem;
+        }
+
+        .error-box {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #feb2b2;
+            margin-top: 1rem;
             font-size: 0.9rem;
         }
     </style>
@@ -122,75 +168,113 @@
     <header>
         <div class="engine-status">
             <span id="statusDot" class="dot"></span>
-            <span id="statusText">Wasm Engine: Initializing...</span>
+            <span id="statusText">Engine: Initializing...</span>
         </div>
         <h1>SIMLE Library</h1>
-        <p class="subtitle">High-Performance Multilingual Learning Documentation</p>
+        <p class="subtitle">Open-source standard for high-performance, multilingual technical documentation.</p>
     </header>
 
     <div class="container">
         <div class="hero-card">
-            <h2>Welcome to the Standard</h2>
-            <p>Select a book below to begin a synchronized multilingual reading experience powered by Rust & WebAssembly.</p>
-            <a href="https://github.com/robwelan/simle-library" class="btn" style="background: #636e72;">View on GitHub</a>
+            <h2>Welcome to the Library</h2>
+            <p>Every book here is generated from the SIMLE standard, featuring instant language switching and optimized typography.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="https://github.com/robwelan/simle-library" class="btn">GitHub Repository</a>
+                <a href="http://docs.google.com/core-docs/simle-technical-standard" class="btn btn-secondary">Read Standard</a>
+            </div>
         </div>
 
-        <div class="grid">
-            <div class="book-card">
-                <div class="book-cover">📚</div>
-                <div class="book-info">
-                    <div class="book-title">SIMLE Technical Standard</div>
-                    <div class="book-author">by robwelan</div>
-                    <p>The official documentation for the SIMLE project ecosystem.</p>
-                    <span class="btn">Read Now</span>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <div class="book-cover" style="background: #6c5ce7;">⚛️</div>
-                <div class="book-info">
-                    <div class="book-title">Physics 101</div>
-                    <div class="book-author">by robwelan</div>
-                    <p>Basic mechanics and energy principles in English and Arabic.</p>
-                    <span class="btn">Read Now</span>
-                </div>
+        <div id="libraryGrid" class="grid">
+            <div id="loading-message">
+                <div class="spinner"></div>
+                Scanning library manifest...
             </div>
         </div>
     </div>
 
     <footer>
-        &copy; 2024 SIMLE Project. Powered by Rust & WebAssembly.
+        &copy; 2024 SIMLE Project. <br> Built with Rust, WebAssembly, and Markdown.
     </footer>
 
     <script type="module">
+        // Using relative-to-module paths ensures it works regardless of the URL path
         import init, { ping } from './wasm/simle_engine_core.js';
+
+        const grid = document.getElementById('libraryGrid');
+
+        async function loadLibrary() {
+            try {
+                // Ensure we fetch relative to the current index.html location
+                const response = await fetch('./library.json');
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status} - Ensure library.json is in the /docs folder.`);
+
+                const books = await response.json();
+                renderLibrary(books);
+            } catch (err) {
+                grid.innerHTML = `
+                    <div id="loading-message">
+                        <div class="error-box">
+                            <strong>Library Loading Error</strong><br>
+                            ${err.message}<br><br>
+                            <small>Make sure the build script generated 'docs/library.json'</small>
+                        </div>
+                    </div>`;
+                console.error("Library fetch failed:", err);
+            }
+        }
+
+        function renderLibrary(books) {
+            if (!books || books.length === 0) {
+                grid.innerHTML = `<div id="loading-message">No books found in the library manifest.</div>`;
+                return;
+            }
+
+            grid.innerHTML = books.map(book => {
+                // Clean up paths: if they start with 'books/', assume relative to site root
+                const bookLink = book.path.startsWith('books/') ? `./${book.path}/index.html` : book.path;
+
+                return `
+                <a href="${bookLink}" class="book-card">
+                    <div class="book-cover" style="background: ${book.cover_color || '#0984e3'}">
+                        ${book.icon || '📚'}
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">by ${book.author || 'Anonymous'}</div>
+                        <p class="book-description">${book.description || 'No description available.'}</p>
+                        <span class="btn" style="background: ${book.cover_color || '#0984e3'}">Open Book</span>
+                    </div>
+                </a>
+            `}).join('');
+        }
 
         async function startEngine() {
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
 
             try {
-                // Construct the absolute-relative path to ensure it finds the .wasm file correctly
-                const wasmPath = new URL('./wasm/simle_engine_core_bg.wasm', import.meta.url).href;
-                console.log("Attempting to load Wasm from:", wasmPath);
+                // Point to the specific WASM file location
+                await init('./wasm/simle_engine_core_bg.wasm');
 
-                await init(wasmPath);
+                // If your wasm exports a ping function
+                try {
+                    ping();
+                    statusText.innerText = "Engine: Active (v1.2.0)";
+                } catch (e) {
+                    statusText.innerText = "Engine: Active";
+                }
 
-                const pong = ping();
-                console.log("Engine Response:", pong);
-
-                statusDot.classList.remove('error');
                 statusDot.classList.add('active');
-                statusText.innerText = "Wasm Engine: Active";
             } catch (err) {
                 statusDot.classList.add('error');
-                statusText.innerText = "Wasm Engine: Error (Check Console)";
-                console.error("Engine failed to start. Possible causes: 404 on .wasm file or incorrect folder structure in /docs/wasm/.");
-                console.error("Error details:", err);
+                statusText.innerText = "Engine: Failed";
+                console.warn("Wasm Engine could not be initialized. This might be expected if wasm binaries aren't built yet.", err);
             }
         }
 
-        window.addEventListener('load', startEngine);
+        // Initialize
+        startEngine();
+        loadLibrary();
     </script>
 </body>
 </html>

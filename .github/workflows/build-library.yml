@@ -1,0 +1,31 @@
+name: Build Library Manifest
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Generate JSON
+        run: python build_library.py
+
+      - name: Commit manifest
+        run: |
+          git config --global user.name 'Library Bot'
+          git config --global user.email 'bot@simple.org'
+
+          # Stage the specific file in the docs directory
+          git add docs/library.json
+
+          # Only commit if there are changes to library.json
+          if git diff --staged --quiet; then
+            echo "No changes to library.json"
+          else
+            git commit -m "chore: update library manifest"
+            git push
+          fi

@@ -12,6 +12,20 @@ The SIMLE engine is currently in **Pre-Alpha**.
 
 👉 [**View the Shared Assets Changelog**](http://docs.google.com/shared-assets/CHANGELOG.md)
 
+## **🚀 Local Development**
+
+To test the library locally and avoid browser security restrictions (CORS) when loading .json or .toml files, use a local HTTP server.
+
+**Run using npx:**
+
+npx http-server . \-p 8000 \--cors \-c-1
+
+* **\-p 8000**: Runs the server on port 8000\.  
+* **\--cors**: Enables Cross-Origin Resource Sharing.  
+* **\-c-1**: Disables caching so you see your changes immediately.
+
+Access your local library at: http://localhost:8000
+
 ## **🛠 Developer Workflow (Important)**
 
 This repository uses **GitHub Actions** to automatically compile the Rust/Wasm engine.
@@ -61,6 +75,4 @@ Download individual archives from our **Releases Page**.
 
 MIT License \- see [LICENSE](http://docs.google.com/LICENSE).
 
-*Standard Version: 1.2.0*
-
-*Primary Maintainer: [robwelan](https://github.com/robwelan)*
+*Standard Version: 1.2.0* *Primary Maintainer: [robwelan](https://github.com/robwelan)*

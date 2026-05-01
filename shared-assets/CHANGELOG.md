@@ -2,6 +2,23 @@
 
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0, this project is considered to be in a **Pre-Alpha / Draft** state.
 
+## **\[0.0.3-dev\] \- 2024-05-27**
+
+### **Status: Automation & Distribution Pipeline**
+
+Implemented automated manifest generation and optimized the directory structure for web-based library distribution via GitHub Pages.
+
+### **Added**
+
+* **Manifest Build Script:** Created build\_library.py to recursively parse meta.toml files and generate a unified library.json manifest.  
+* **Automated CI/CD Workflow:** Integrated a GitHub Action (build-library.yaml) to automatically rebuild and commit the library manifest on every push.  
+* **Web Distribution Path:** Established the /docs/ directory as the primary target for build artifacts to support direct hosting via GitHub Pages.
+
+### **Changed**
+
+* **Output Relocation:** Moved the generated library.json from the root directory to /docs/library.json to isolate distribution assets from source code.  
+* **Workflow Optimization:** Updated the build-library workflow with intelligent change detection to prevent redundant "empty" commits when manifest data remains unchanged.
+
 ## **\[0.0.2-dev\] \- 2024-05-24**
 
 ### **Status: Localization Logic Finalized**
@@ -46,6 +63,6 @@ Finalized the simplified repository hierarchy and asset management strategy. Thi
 * Compile the first iteration of engine\_core.wasm.  
 * Verify font loading across mobile and desktop environments.
 
-*Standard Version: 0.0.2-dev*
+*Standard Version: 0.0.3-dev*
 
 *File Name: CHANGELOG.md*
