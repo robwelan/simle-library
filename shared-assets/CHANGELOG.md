@@ -2,6 +2,16 @@
 
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0, this project is considered to be in a **Pre-Alpha / Draft** state.
 
+## **[0.0.6-dev] - 2024-05-30**
+
+### **Added**
+* **Environment-Aware Pathing**: Implemented "Smart Path" logic in `index.html` and `diagnostic.html` to automatically toggle between local sibling paths (`../books`) and GitHub Pages deployment paths (`./books`).
+* **Automated Asset Sync**: Updated GitHub Actions workflow to physically synchronize the root `books/` directory into the `docs/` folder, ensuring asset visibility on the production web server.
+
+### **Fixed**
+* **Diagnostic Accuracy**: Enhanced the asset debugger to provide real-time environment detection (GitHub vs. Local) and explicit URL probing for `library.json` and book assets.
+* **Asset Accessibility**: Resolved 404 errors caused by GitHub Pages' restriction on accessing directories outside the site root.
+
 ## **\[0.0.5-dev\] \- 2024-05-29**
 
 ### **Status: Dynamic Configuration & Path Decoupling**
@@ -10,12 +20,12 @@ Decoupled the library interface from hardcoded directory structures by implement
 
 ### **Added**
 
-* **Configuration-Driven Routing:** Integrated a fetch-based lookup of paths.json to dynamically determine the search\_dir, allowing the library to locate book modules even if the folder names are changed in the environment configuration.  
+* **Configuration-Driven Routing:** Integrated a fetch-based lookup of paths.json to dynamically determine the search\_dir, allowing the library to locate book modules even if the folder names are changed in the environment configuration.
 * **Intelligent Path Normalization:** Added logic to resolve relative sibling paths (e.g., transitioning from /docs/ to /books/) based on the root manifest configuration.
 
 ### **Changed**
 
-* **Dynamic Asset Resolution:** Refined the image and reader URL generation logic to use the baseBooksUrl derived from the environment config, eliminating "broken link" issues during cross-repository deployments.  
+* **Dynamic Asset Resolution:** Refined the image and reader URL generation logic to use the baseBooksUrl derived from the environment config, eliminating "broken link" issues during cross-repository deployments.
 * **Manifest Loading Logic:** Updated the initialization sequence to ensure configuration constants are resolved prior to parsing library.json.
 
 ## **\[0.0.4-dev\] \- 2024-05-28**
@@ -26,13 +36,13 @@ Developed the front-end interface for the SIMLE Library, providing a visual gate
 
 ### **Added**
 
-* **Interactive Library UI:** Created a responsive, grid-based web interface (index.html) using Tailwind CSS to display books from the generated manifest.  
-* **Defensive Asset Loading:** Implemented a robust path-resolution script that dynamically constructs image URLs and handles fallback states (color/icon placeholders) if assets are missing or improperly path-referenced.  
+* **Interactive Library UI:** Created a responsive, grid-based web interface (index.html) using Tailwind CSS to display books from the generated manifest.
+* **Defensive Asset Loading:** Implemented a robust path-resolution script that dynamically constructs image URLs and handles fallback states (color/icon placeholders) if assets are missing or improperly path-referenced.
 * **Dynamic Reader Integration:** Established a direct "Launch" pipeline that maps library items to their respective /books/{book-folder}/index.html entry points.
 
 ### **Changed**
 
-* **Manifest Consumption:** Switched from a static file view to a dynamic fetch model with cache-busting logic to ensure the library always reflects the latest CI/CD manifest updates.  
+* **Manifest Consumption:** Switched from a static file view to a dynamic fetch model with cache-busting logic to ensure the library always reflects the latest CI/CD manifest updates.
 * **UI Polish:** Integrated hover transitions, glassmorphism effects for book covers, and a "Mobile-First" responsive design pattern.
 
 ## **\[0.0.3-dev\] \- 2024-05-27**
@@ -43,13 +53,13 @@ Implemented automated manifest generation and optimized the directory structure 
 
 ### **Added**
 
-* **Manifest Build Script:** Created build\_library.py to recursively parse meta.toml files and generate a unified library.json manifest.  
-* **Automated CI/CD Workflow:** Integrated a GitHub Action (build-library.yaml) to automatically rebuild and commit the library manifest on every push.  
+* **Manifest Build Script:** Created build\_library.py to recursively parse meta.toml files and generate a unified library.json manifest.
+* **Automated CI/CD Workflow:** Integrated a GitHub Action (build-library.yaml) to automatically rebuild and commit the library manifest on every push.
 * **Web Distribution Path:** Established the /docs/ directory as the primary target for build artifacts to support direct hosting via GitHub Pages.
 
 ### **Changed**
 
-* **Output Relocation:** Moved the generated library.json from the root directory to /docs/library.json to isolate distribution assets from source code.  
+* **Output Relocation:** Moved the generated library.json from the root directory to /docs/library.json to isolate distribution assets from source code.
 * **Workflow Optimization:** Updated the build-library workflow with intelligent change detection to prevent redundant "empty" commits when manifest data remains unchanged.
 
 ## **\[0.0.2-dev\] \- 2024-05-24**
@@ -60,14 +70,14 @@ Refined the asset mapping strategy to support multi-lingual covers by decoupling
 
 ### **Added**
 
-* **Localized Asset Schema:** Integrated![][image1]  
-  into the meta.toml specification to allow for language-specific visual branding.  
-* **Asset Specification Document:** Created comprehensive technical requirements for background art (9:16/16:9) and wordmark transparency.  
+* **Localized Asset Schema:** Integrated![][image1]
+  into the meta.toml specification to allow for language-specific visual branding.
+* **Asset Specification Document:** Created comprehensive technical requirements for background art (9:16/16:9) and wordmark transparency.
 * **3x3 Grid Alignment Standards:** Established "tight-crop" rules for wordmark assets to ensure predictable layout positioning.
 
 ### **Changed**
 
-* **Metadata Relocation:** Moved wordmark file path definitions from book.toml (Global) to meta.toml (Locale) to ensure the correct visual branding loads automatically with the selected language.  
+* **Metadata Relocation:** Moved wordmark file path definitions from book.toml (Global) to meta.toml (Locale) to ensure the correct visual branding loads automatically with the selected language.
 * **Directory Structure:** Updated the recommended asset pathing to include locale subdirectories (e.g., assets/images/en-us/).
 
 ## **\[0.0.1-dev\] \- 2024-05-22**
@@ -78,22 +88,20 @@ Finalized the simplified repository hierarchy and asset management strategy. Thi
 
 ### **Added**
 
-* **Final Repository Schema:** Established the core root structure:  
-  * /books/ \- Contains the standard and library books.  
-  * /shared-assets/ \- Evergreen CSS, Fonts, and Wasm.  
-  * /local-only/ \- Directory for non-committed drafts and experiments.  
-  * README.md \- Root project documentation.  
-* **Namespace Strategy:** Confirmed that name clashing will be managed by hosting distinct books in separate repositories.  
-* **Style Definitions (Draft):** Outlined the 18px baseline typography rules and the "Base Plate" font list.  
+* **Final Repository Schema:** Established the core root structure:
+  * /books/ \- Contains the standard and library books.
+  * /shared-assets/ \- Evergreen CSS, Fonts, and Wasm.
+  * /local-only/ \- Directory for non-committed drafts and experiments.
+  * README.md \- Root project documentation.
+* **Namespace Strategy:** Confirmed that name clashing will be managed by hosting distinct books in separate repositories.
+* **Style Definitions (Draft):** Outlined the 18px baseline typography rules and the "Base Plate" font list.
 * **Engine Specification:** Defined the requirements for the Rust-based Wasm engine for manifest parsing and direct shadowing logic.
 
 ### **Changed**
 
-* **Simplified Hierarchy:** Removed the experimental library/![][image2]  
-  /![][image3]  
+* **Simplified Hierarchy:** Removed the experimental library/![][image2]
+  /![][image3]
   nested structure in favor of a flat /books/ directory to improve developer ergonomics.
-
-*Standard Version: 0.0.5-dev* *File Name: CHANGELOG.md*
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmwAAAAvCAYAAABexpbOAAAEU0lEQVR4Xu3abajeYxwH8J0Z5THKms7Ozn3O2ZgWouPF8tjwQiJaG/JUGwrhhYeyhZqHspJYaE0WyeOaTHmcJYk1SjLmhSblYSlFK29Wmu+1XZf+uzFTVkufT/36/67fdf2v/3Xfr37973vCBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPifGhkZub7X6/2UuKt/7r+WZ5yS2J54uX8OAIDdGB4enpc4u7++N5SGLU3iov46AAB/byBN1Pf9xb0lz/ohl4n9dQCAf2VoaOjo4eHhF0ZGRtakwXii1JIfnlia8ZeJz9va5G8kVpc895w/Ojp6RpvL+usSr2b+w8yNT58+fVrZr9aXpPZWnnV8W/9Xsv75xPqkA2VczpXxbbnOnzZt2ultXTlfeU45X/Jza+2BxGeJi8o5yz1tfcavJb5J3JfYXmpTp04dSr4x6y7O9aX62ebm/odzXZW4vd1f97gssTaxIrG41uYkVpc3domnkj83efLkQ8rc+Pj4/qVW161MvN/ZrtTKXu/keSPdOgDALtJATe3VJi3Nxam1qSq1Z9qa5CclFpbGJL3Fgl5teOo9V9Y1panb8SYp+WOpX1CatzpeW6/P7q45KQ1OuZbmppNvT4yWPHteVWvf9p2vrFmYcx+YNctnzpx56JQpUw5ObU6m90ttQ2e/1xObS1OV+pvJP0l82tnr1+6+Y2Njx9T8vMTVJS9NapkreT7Oovp97fhPXK4PDQ4OHlTz+xNzEw+W5jVrX2x71+9mUmIgjehxrQ4A8CdpJpaleZjdV7sntTPbOPmFaW6uLXmu72X+izaX8ax6z/bStJS3U61W1Gbmljb+J7n3iN6uTdPmlmfvY2ut/C/sj/OVcTtf8k2tXqQ+v8y3cfKticc747LXHW2c9a905r7u5OtnzJhxWM0XJ7Z15i5P03VyGzfZ96PM/Zi4s38utXvLs8u+/XMAALtIw/BBd1yakm4TURuun9u4Nhln1fyabr3lMZDG57RaXzFh55ukPZL77u7VZmhwcPDI5LeWPNe5nTUbWl7OV99W7Xjb13eO0jSVn3V/a+Oyd/mMo6OjJ9Txlgn1zWDWLig/D7c8MTt7jpe3cd19yx6ZW5Lrsjr+qs01mb+k3ZM9bs74qLZ36psyfqTOjY+NjQ137wUA2EVpJtLATC55/anv49RumjVr1gGllvG6XueNWmlC0mxcmjgx+cpOfWsnX524sebftfqeyLOvaI1OrjdkvLzWu2++tpTz1YZuXfkvWq0/mfilrSty3zltv+Tzkm+sP4/u+I9cPsfTbW2v8zNre27m19S5d+vUpLJfOWc962jbvyu1R9tZejv/Czcxey2t423D9f91I523ewAA+4w0KW/3R5qYVf3rAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9g2/A8udAhy+0I6IAAAAAElFTkSuQmCC>
 

@@ -2,81 +2,119 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GitHub Pages Asset Debugger</title>
+    <title>SIMLE Library Diagnostic</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white p-10 font-mono">
+<body class="bg-slate-900 text-white p-6 md:p-10 font-mono text-sm">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-2xl font-bold mb-6 border-b border-slate-700 pb-2">Diagnostic Report</h1>
+        <h1 class="text-2xl font-bold mb-2 border-b border-slate-700 pb-2 flex items-center gap-3">
+            <span class="text-blue-500">SIMLE</span> Diagnostic Report
+        </h1>
+        <p id="env-badge" class="inline-block px-2 py-1 rounded bg-slate-800 text-[10px] font-bold tracking-widest uppercase mb-8 italic text-slate-400">Detecting Environment...</p>
 
         <div id="results" class="space-y-4">
-            <div class="p-4 bg-slate-800 rounded">
-                <p class="text-blue-400">Step 1: Checking expected image URL...</p>
-                <p id="url-check" class="mt-2 text-sm text-slate-400 italic">Testing...</p>
+            <!-- Env Info -->
+            <div class="p-4 bg-slate-800 rounded border-l-4 border-blue-500">
+                <p class="text-blue-400 font-bold mb-2 uppercase text-xs tracking-widest">Environment Data</p>
+                <div id="env-data" class="space-y-1 text-slate-300"></div>
             </div>
 
-            <div class="p-4 bg-slate-800 rounded">
-                <p class="text-blue-400">Step 2: Server Response Test (Fetch)</p>
-                <div id="fetch-log" class="mt-2 text-sm space-y-1"></div>
+            <!-- Path Check -->
+            <div class="p-4 bg-slate-800 rounded border-l-4 border-amber-500">
+                <p class="text-amber-400 font-bold mb-2 uppercase text-xs tracking-widest">Step 1: Manifest Check (library.json)</p>
+                <div id="manifest-log" class="space-y-1">Testing...</div>
             </div>
 
-            <div class="p-4 bg-slate-800 rounded">
-                <p class="text-blue-400">Step 3: Visual Render Test</p>
-                <div id="visual-test" class="mt-4 flex gap-4 items-center">
-                    <div id="img-container" class="w-32 h-32 bg-slate-700 rounded flex items-center justify-center">
-                        <span class="text-xs">Waiting...</span>
+            <!-- Asset Check -->
+            <div class="p-4 bg-slate-800 rounded border-l-4 border-purple-500">
+                <p class="text-purple-400 font-bold mb-2 uppercase text-xs tracking-widest">Step 2: Asset Integrity (Technical Standard Cover)</p>
+                <div id="asset-log" class="mb-4">Testing...</div>
+                <div id="visual-test" class="flex gap-4 items-center">
+                    <div id="img-container" class="w-full max-w-md aspect-video bg-slate-700 rounded-lg flex items-center justify-center overflow-hidden border border-slate-600">
+                        <span class="text-xs text-slate-500 italic">Waiting for check...</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-10 p-6 bg-amber-900/20 border border-amber-600/50 rounded-xl">
-            <h2 class="text-amber-400 font-bold mb-2">Possible Solutions:</h2>
-            <ul class="list-disc ml-5 text-sm space-y-2 text-slate-300">
-                <li><strong>The .nojekyll fix:</strong> Create an empty file named <code>.nojekyll</code> in the root of your repository. GitHub Pages uses Jekyll by default, which sometimes blocks specific file types or deep directory structures.</li>
-                <li><strong>Path Consistency:</strong> If your repo name is <code>my-repo</code>, your local path <code>/assets/</code> might work, but on GH Pages the path needs to be <code>/my-repo/assets/</code>. Check if the browser is trying to load from the root domain instead of the project subfolder.</li>
-                <li><strong>LFS Check:</strong> Did you use Git LFS for the images? GitHub Pages does <strong>not</strong> support Git LFS files; it will serve a small text pointer instead of the actual image data.</li>
+        <div class="mt-10 p-6 bg-slate-800/50 border border-slate-700 rounded-xl">
+            <h2 class="text-slate-400 font-bold mb-4 uppercase text-xs tracking-widest">Infrastructure Notes</h2>
+            <ul class="list-disc ml-5 space-y-3 text-slate-400">
+                <li><strong class="text-slate-200">GitHub Pages Root:</strong> On deployment, the <code>/docs</code> folder becomes the site root (<code>/</code>).</li>
+                <li><strong class="text-slate-200">The Books Path:</strong> In your current workflow, the <code>books</code> folder is moved <strong>inside</strong> <code>docs</code> during deployment. Access it via <code>./books/</code>.</li>
+                <li><strong class="text-slate-200">Local Testing:</strong> Locally, <code>index.html</code> is inside <code>docs</code>, so it must go up one level: <code>../books/</code>.</li>
             </ul>
         </div>
     </div>
 
     <script>
-        const targetUrl = "https://robwelan.github.io/books/simle-technical-standard/assets/images/cover_art_landscape.webp";
-
         async function runDiagnostic() {
-            document.getElementById('url-check').textContent = "Target: " + targetUrl;
-            const log = document.getElementById('fetch-log');
+            const envData = document.getElementById('env-data');
+            const envBadge = document.getElementById('env-badge');
+            const manifestLog = document.getElementById('manifest-log');
+            const assetLog = document.getElementById('asset-log');
+            const imgContainer = document.getElementById('img-container');
+
+            // 1. Detect Environment
+            const isGitHub = window.location.hostname.includes('github.io');
+            const baseBooksUrl = isGitHub ? './books' : '../books';
+
+            envBadge.textContent = isGitHub ? "Running on GitHub Pages" : "Running Locally / File System";
+            envBadge.classList.add(isGitHub ? 'text-green-400' : 'text-amber-400');
+
+            envData.innerHTML = `
+                <p>Hostname: <span class="text-white">${window.location.hostname || 'localhost'}</span></p>
+                <p>Base Strategy: <span class="text-white">${baseBooksUrl}</span></p>
+                <p>Current Path: <span class="text-white">${window.location.pathname}</span></p>
+            `;
+
+            // 2. Check library.json
+            try {
+                const libRes = await fetch('./library.json');
+                if (libRes.ok) {
+                    const data = await libRes.json();
+                    manifestLog.innerHTML = `<p class="text-green-400">✔ library.json found and parsed. Contains ${data.length} books.</p>`;
+                } else {
+                    manifestLog.innerHTML = `<p class="text-red-400">✘ library.json NOT FOUND in ./library.json (Status: ${libRes.status})</p>`;
+                }
+            } catch (e) {
+                manifestLog.innerHTML = `<p class="text-red-400">✘ Error fetching manifest: ${e.message}</p>`;
+            }
+
+            // 3. Check specific asset
+            // Testing a known asset from the technical standard
+            const testImgUrl = `${baseBooksUrl}/simle-technical-standard/assets/images/cover_art_landscape.webp`;
+            assetLog.innerHTML = `<p class="text-slate-500 italic mb-2">Probing: ${testImgUrl}</p>`;
 
             try {
-                const response = await fetch(targetUrl, { method: 'HEAD' });
-
-                const statusColor = response.ok ? 'text-green-400' : 'text-red-400';
-                log.innerHTML += `<p class="${statusColor}">Status: ${response.status} ${response.statusText}</p>`;
-                log.innerHTML += `<p>Content-Type: ${response.headers.get('content-type') || 'unknown'}</p>`;
-                log.innerHTML += `<p>Content-Length: ${response.headers.get('content-length') || '0'} bytes</p>`;
+                const response = await fetch(testImgUrl, { method: 'HEAD' });
 
                 if (response.ok) {
+                    assetLog.innerHTML += `<p class="text-green-400">✔ HEAD request successful (200 OK).</p>`;
+                    assetLog.innerHTML += `<p class="text-slate-400">Type: ${response.headers.get('content-type')}</p>`;
+
                     const img = new Image();
-                    img.src = targetUrl;
-                    img.className = "max-w-full h-auto rounded shadow-lg";
+                    img.src = testImgUrl;
+                    img.className = "w-full h-full object-cover";
                     img.onload = () => {
-                        document.getElementById('img-container').innerHTML = '';
-                        document.getElementById('img-container').appendChild(img);
-                        log.innerHTML += `<p class="text-green-400">✔ Image loaded into memory successfully.</p>`;
+                        imgContainer.innerHTML = '';
+                        imgContainer.appendChild(img);
+                        assetLog.innerHTML += `<p class="text-green-400">✔ Image rendered successfully.</p>`;
                     };
                     img.onerror = () => {
-                        log.innerHTML += `<p class="text-red-400">✘ Browser failed to render the image despite 200 OK status.</p>`;
+                        assetLog.innerHTML += `<p class="text-red-400">✘ File exists but browser failed to decode image (Check format/LFS).</p>`;
+                        imgContainer.innerHTML = `<span class="text-red-500 font-bold">DECODE ERROR</span>`;
                     };
                 } else {
-                    log.innerHTML += `<p class="text-red-500 font-bold">The file was not found (404). Check if 'books' is actually a folder in the 'main' or 'gh-pages' branch.</p>`;
+                    assetLog.innerHTML += `<p class="text-red-500 font-bold">✘ Asset not found (404). Check if folder exists at: ${testImgUrl}</p>`;
+                    imgContainer.innerHTML = `<span class="text-red-500 font-bold uppercase tracking-widest text-[10px]">Missing File</span>`;
                 }
-
             } catch (err) {
-                log.innerHTML += `<p class="text-red-400">Error: ${err.message}</p>`;
+                assetLog.innerHTML += `<p class="text-red-400">✘ Network Error: ${err.message}</p>`;
             }
         }
 
-        runDiagnostic();
+        window.onload = runDiagnostic;
     </script>
 </body>
 </html>
