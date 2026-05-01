@@ -1,18 +1,30 @@
-# Root Manifest: Global identity for the entire publication
 [project]
 id = "std-001"
 version = "1.0.0"
 
-[structure]
-# The engine scans these folders in the /content/ directory.
-# The first locale in this list is the default view and primary language.
-# Naming Standard: ISO 639-1 & BCP 47
-locales = ["en-us", "zh-py", "ar-eg"]
+[cover]
+book_cover_layout = "layout-classic"
 
-# THE MASTER SEQUENCE: Defines the exact page order.
-# Filenames must exist in every folder listed above.
-content = [
+# Asset for horizontal displays (Desktop/Tablets) | Specs: 16:9 | CSS: --bg-landscape
+cover_background_landscape = "assets/images/cover_art_landscape.webp"
+
+# Asset for vertical displays (Mobile) | Specs: 9:16 | CSS: --bg-portrait
+cover_background_portrait = "assets/images/cover_art_portrait.webp"
+
+[structure]
+# Primary locale must be first. Compliance: ISO 639-1 / BCP 47
+locales = ["en-us"]
+
+# Reading Order: Must be identical across all locale folders.
+manifest = [
   "project_standard.md",
   "file_structure.md",
-  "locales_standard.md"
+  "locales_standard.md",
+  "typography_standard.md",
+  "shared_assets_logic.md",
+  "base_typography_css.md",
+  "font_acquisition.md",
+  "cover_system_logic.md",
+  "cover_art_specifications.md",
+  "branding_wordmarks.md"
 ]
