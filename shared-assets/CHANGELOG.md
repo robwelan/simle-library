@@ -2,6 +2,12 @@
 
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0, this project is considered to be in a **Pre-Alpha / Draft** state.
 
+## **[0.0.7-dev] - 2024-05-30**
+
+### **Changed**
+* **Deployment Concurrency**: Added concurrency controls to the workflow to handle the "double-push" sequence, resolving conflicts where initial build requests were superseded by automated sync commits.
+* **Asset Cleanup**: Updated the sync script to perform a clean wipe (`rm -rf`) of `docs/books/` before copying, ensuring the web distribution is a 1:1 mirror of the root source.
+
 ## **[0.0.6-dev] - 2024-05-30**
 
 ### **Added**
