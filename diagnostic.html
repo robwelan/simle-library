@@ -1,183 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIMLE Infrastructure Diagnostic</title>
+    <script src="https://cdn.jsdelivr.net/npm/smol-toml@1.3.1/+esm"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes pulse-subtle { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .analyzing { animation: pulse-subtle 1.5s infinite; }
+      @keyframes pulse-subtle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+      .log-entry {
+        border-left: 2px solid #1e293b;
+        padding-left: 12px;
+        margin-bottom: 4px;
+      }
     </style>
-</head>
-<body class="bg-slate-950 text-slate-200 p-6 md:p-12 font-mono text-sm leading-relaxed">
-
+  </head>
+  <body class="bg-slate-950 text-slate-200 p-6 md:p-12 font-mono text-sm leading-relaxed">
     <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <header class="mb-10 border-b border-slate-800 pb-6">
-            <h1 class="text-3xl font-bold text-white flex items-center gap-3">
-                <span class="text-blue-500">SIMLE</span> System Diagnostic
-            </h1>
-            <div class="flex gap-4 mt-4">
-                <span id="env-badge" class="px-2 py-1 rounded bg-slate-800 text-[10px] font-black tracking-widest uppercase italic">Initializing...</span>
-                <span id="version-badge" class="px-2 py-1 rounded bg-blue-900/30 text-blue-400 text-[10px] font-black tracking-widest uppercase">Engine v0.0.1</span>
-            </div>
-        </header>
-
-        <div id="results" class="space-y-6">
-            <!-- Section 1: Environment & Path Rules -->
-            <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
-                <h2 class="text-blue-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">01. Environment Mapping</h2>
-                <div id="env-data" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-400">
-                    <div class="p-3 bg-black/30 rounded border border-slate-800/50">
-                        <p class="text-[10px] uppercase mb-1 text-slate-500">Hostname</p>
-                        <p id="stat-host" class="text-white">--</p>
-                    </div>
-                    <div class="p-3 bg-black/30 rounded border border-slate-800/50">
-                        <p class="text-[10px] uppercase mb-1 text-slate-500">Resolved Strategy</p>
-                        <p id="stat-strategy" class="text-white">--</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section 2: JSON Integrity -->
-            <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
-                <h2 class="text-amber-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">02. Manifest Discovery</h2>
-                <div id="manifest-log" class="space-y-3">
-                    <div class="flex items-center gap-3 text-slate-500 italic analyzing">
-                        <span>Probing paths.json and library.json...</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section 3: Asset & Rendering Logic -->
-            <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
-                <h2 class="text-purple-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">03. Deep Asset Probe</h2>
-                <div id="asset-log" class="mb-6 space-y-2">
-                    <!-- Logs injected here -->
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                    <div id="img-container" class="relative group aspect-video bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-700 transition-all hover:border-purple-500/50">
-                        <span class="text-xs text-slate-600 uppercase font-bold tracking-tighter">Visual Buffer Empty</span>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="p-4 bg-purple-900/10 rounded-lg border border-purple-500/20">
-                            <h3 class="text-purple-300 font-bold text-xs mb-2 uppercase">Probe Metadata</h3>
-                            <div id="probe-details" class="text-[11px] text-slate-400 space-y-1">
-                                <p>Target ID: <span class="text-slate-200">std-001</span></p>
-                                <p>Locale: <span class="text-slate-200">en-us</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+      <header class="mb-10 border-b border-slate-800 pb-6">
+        <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+          <span class="text-blue-500">SIMLE</span> System Diagnostic
+        </h1>
+        <div class="flex gap-4 mt-4">
+          <span id="env-badge" class="px-2 py-1 rounded bg-slate-800 text-[10px] font-black tracking-widest uppercase italic border border-white/10">Detecting...</span>
+          <span id="version-badge" class="px-2 py-1 rounded bg-blue-900/30 text-blue-400 text-[10px] font-black tracking-widest uppercase">Engine v0.1.3</span>
         </div>
+      </header>
 
-        <!-- Footer Notes -->
-        <footer class="mt-12 p-8 bg-blue-950/10 border border-blue-900/20 rounded-2xl">
-            <h2 class="text-blue-400 font-bold mb-4 uppercase text-[10px] tracking-widest">Documentation Trace</h2>
-            <div class="grid md:grid-cols-2 gap-8 text-[12px] text-slate-500">
-                <ul class="space-y-2">
-                    <li><strong class="text-slate-300">Strategy Local:</strong> Uses <code>web_paths.local_books_base</code> (../books)</li>
-                    <li><strong class="text-slate-300">Strategy Server:</strong> Uses <code>web_paths.server_books_base</code> (./books)</li>
-                </ul>
-                <ul class="space-y-2">
-                    <li><strong class="text-slate-300">WASM Context:</strong> This page validates the <u>External Paths</u> required by <code>SimleEngine</code>.</li>
-                </ul>
+      <div id="results" class="space-y-6">
+        <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
+          <h2 class="text-blue-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">01. Global Config (book.toml)</h2>
+          <pre id="debug-book" class="text-[10px] bg-black/50 p-4 rounded border border-slate-800 overflow-auto max-h-40 text-blue-400">Loading...</pre>
+        </section>
+
+        <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
+          <h2 class="text-amber-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">02. Locale Config (meta.toml)</h2>
+          <pre id="debug-meta" class="text-[10px] bg-black/50 p-4 rounded border border-slate-800 overflow-auto max-h-40 text-amber-500">Loading...</pre>
+        </section>
+
+        <section class="p-6 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl">
+          <h2 class="text-purple-400 font-bold mb-4 uppercase text-xs tracking-[0.2em]">03. Landscape Cover Probe</h2>
+          <div id="asset-log" class="mb-6 space-y-1"></div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div id="img-container" class="relative aspect-video bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-700">
+              <span class="text-xs text-slate-600 uppercase font-bold tracking-tighter">Visual Buffer Empty</span>
             </div>
-        </footer>
+            <div class="space-y-4">
+              <div class="p-4 bg-purple-900/10 rounded-lg border border-purple-500/20">
+                <h3 class="text-purple-300 font-bold text-xs mb-2 uppercase tracking-tighter">Asset Metadata</h3>
+                <div id="probe-details" class="text-[11px] text-slate-400 space-y-2"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <script type="module">
-        /**
-         * SIMLE Infrastructure Diagnostic Logic
-         * Purpose: Verifies file availability and path resolution prior to WASM initialization.
-         */
-        async function runDiagnostic() {
-            const ui = {
-                badge: document.getElementById('env-badge'),
-                host: document.getElementById('stat-host'),
-                strategy: document.getElementById('stat-strategy'),
-                manifest: document.getElementById('manifest-log'),
-                asset: document.getElementById('asset-log'),
-                img: document.getElementById('img-container'),
-                probe: document.getElementById('probe-details')
-            };
+      import { parse } from 'https://cdn.jsdelivr.net/npm/smol-toml@1.3.1/+esm';
 
-            const log = (el, msg, type = 'info') => {
-                const colors = {
-                    info: 'text-slate-400',
-                    success: 'text-green-400 font-bold',
-                    error: 'text-red-500 font-bold',
-                    warn: 'text-amber-400'
-                };
-                const prefix = type === 'success' ? '✔ ' : type === 'error' ? '✘ ' : '→ ';
-                el.innerHTML += `<p class="${colors[type]} py-0.5">${prefix}${msg}</p>`;
-            };
+      async function runDiagnostic() {
+        const ui = {
+          badge: document.getElementById('env-badge'),
+          asset: document.getElementById('asset-log'),
+          img: document.getElementById('img-container'),
+          probe: document.getElementById('probe-details'),
+          debugBook: document.getElementById('debug-book'),
+          debugMeta: document.getElementById('debug-meta')
+        };
 
-            try {
-                // 1. Core Config Fetch
-                const pathsRes = await fetch('./paths.json');
-                if (!pathsRes.ok) throw new Error(`Could not find paths.json (Status ${pathsRes.status})`);
-                const paths = await pathsRes.json();
+        const log = (msg, type = 'info') => {
+          const colors = { info: 'text-slate-400', success: 'text-green-400 font-bold', error: 'text-red-500 font-bold', warn: 'text-amber-400' };
+          ui.asset.innerHTML += `<div class="log-entry ${colors[type]}">→ ${msg}</div>`;
+        };
 
-                // 2. Environment Context
-                const isGitHub = window.location.hostname.includes('github.io') || window.location.hostname.includes('pages.dev');
-                const baseBooksUrl = isGitHub ? paths.web_paths.server_books_base : paths.web_paths.local_books_base;
+        try {
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          ui.badge.textContent = isLocal ? 'Local Dev' : 'Production';
 
-                ui.badge.textContent = isGitHub ? "Deployed: Remote" : "Local Development";
-                ui.badge.className = `px-2 py-1 rounded text-[10px] font-black tracking-widest uppercase italic ${isGitHub ? 'bg-green-900 text-green-400' : 'bg-amber-900 text-amber-400'}`;
-                ui.host.textContent = window.location.hostname || 'localhost (local-file)';
-                ui.strategy.textContent = baseBooksUrl;
+          const pathsRes = await fetch('./paths.json');
+          const paths = await pathsRes.json();
+          const libRes = await fetch('./library.json');
+          const library = await libRes.json();
 
-                log(ui.manifest, "paths.json loaded successfully.", 'success');
+          const testBook = library[0];
+          const baseBooksUrl = isLocal ? paths.web_paths.local_books_base : paths.web_paths.server_books_base;
 
-                // 3. Library Manifest Verification
-                const libRes = await fetch('./library.json');
-                if (!libRes.ok) throw new Error(`Could not find library.json (Status ${libRes.status})`);
-                const library = await libRes.json();
+          // Absolute root for the book
+          const bookRootUrl = new URL(testBook.path + '/', new URL(baseBooksUrl + '/', window.location.href)).href;
+          const locale = testBook.active_locale || 'en-us';
 
-                const stdBook = library.find(b => b.id === "std-001");
-                if (!stdBook) throw new Error("Could not find 'std-001' in library.json");
+          // 1. Load book.toml
+          const bookRes = await fetch(`${bookRootUrl}book.toml`);
+          const bookData = parse(await bookRes.text());
+          ui.debugBook.textContent = JSON.stringify(bookData, null, 2);
 
-                log(ui.manifest, `library.json parsed. Found: ${stdBook.title}`, 'success');
+          // 2. Load meta.toml
+          const metaRes = await fetch(`${bookRootUrl}content/${locale}/meta.toml`);
+          const metaData = parse(await metaRes.text());
+          ui.debugMeta.textContent = JSON.stringify(metaData, null, 2);
 
-                // 4. Asset Deep Probe
-                // Resolving: BASE / BOOK_PATH / ASSET_SUBFOLDER / FILENAME
-                const assetPath = `${baseBooksUrl}/${stdBook.path}/${paths.web_paths.assets_subfolder}/${stdBook.landscape}`;
-                log(ui.asset, `Targeting Asset: ${assetPath}`, 'info');
+          // 3. Resolve Landscape Background (Global Asset)
+          const landscapeFile = bookData.cover?.cover_background_landscape;
+          // Resolved Path: [root]/assets/images/[filename]
+          const landscapeUrl = new URL(`assets/images/${landscapeFile}`, bookRootUrl).href;
 
-                const assetCheck = await fetch(assetPath, { method: 'HEAD' });
+          // 4. Resolve Wordmark (Localized Asset)
+          const wordmarkValue = metaData.cover_wordmarks?.book_wordmark_title;
+          const wordmarkUrl = new URL(wordmarkValue, bookRootUrl).href;
 
-                if (assetCheck.ok) {
-                    log(ui.asset, "Asset exists on server (200 OK).", 'success');
+          log(`Testing Landscape: ${landscapeFile}`, 'success');
+          log(`Wordmark Found: ${wordmarkValue}`, 'info');
 
-                    // Visual Verification
-                    const img = new Image();
-                    img.src = assetPath;
-                    img.className = "w-full h-full object-cover animate-in fade-in duration-1000";
-                    img.onload = () => {
-                        ui.img.innerHTML = '';
-                        ui.img.appendChild(img);
-                        log(ui.asset, `Image rendered at ${img.naturalWidth}x${img.naturalHeight}px`, 'success');
-                    };
-                    img.onerror = () => log(ui.asset, "Browser failed to decode image. Check file integrity.", 'error');
-                } else {
-                    log(ui.asset, `Asset missing at path. Check folder nesting.`, 'error');
-                }
+          // 5. Visual Probe (Testing Landscape Background)
+          const img = new Image();
+          img.src = landscapeUrl;
+          img.className = 'w-full h-full object-cover animate-in fade-in duration-1000';
+          img.onload = () => {
+            ui.img.innerHTML = '';
+            ui.img.appendChild(img);
+          };
+          img.onerror = () => {
+            ui.img.innerHTML = `<div class="text-center p-4"><p class="text-red-500 font-bold text-[10px]">404: COVER MISSING</p><p class="text-[8px] mt-1 break-all">${landscapeUrl}</p></div>`;
+          };
 
-                ui.probe.innerHTML += `<p>Resolved URL: <span class="text-blue-400 break-all">${assetPath}</span></p>`;
+          ui.probe.innerHTML = `
+            <div class="space-y-3">
+              <div>
+                <p class="text-blue-400 font-bold uppercase text-[9px]">Landscape Background (Global)</p>
+                <p class="text-white break-all">${landscapeUrl}</p>
+              </div>
+              <div class="pt-2 border-t border-slate-800">
+                <p class="text-purple-400 font-bold uppercase text-[9px]">Wordmark Title (Localized)</p>
+                <p class="text-white break-all">${wordmarkUrl}</p>
+              </div>
+            </div>
+          `;
 
-            } catch (err) {
-                ui.manifest.innerHTML = `<div class="p-4 bg-red-900/20 border border-red-500/50 rounded text-red-500">
-                    <strong>DIAGNOSTIC_FAILURE:</strong> ${err.message}
-                </div>`;
-                console.error(err);
-            }
+        } catch (err) {
+          log(err.message, 'error');
         }
+      }
 
-        window.onload = runDiagnostic;
+      window.onload = runDiagnostic;
     </script>
-</body>
+  </body>
 </html>
