@@ -71,7 +71,7 @@ to be out of sync.
 **Always pull before pushing:**
 
 ```bash
-git pull \--rebase origin main
+git pull --rebase origin main
 ```
 
 ### **3\. gh-pages new**
