@@ -16,7 +16,7 @@ cover_background_portrait = "cover_art_portrait.webp"
 locales = ["en-us"]
 
 # Reading Order: Must be identical across all locale folders.
-manifest = [
+content = [
   "project_standard.md",
   "file_structure.md",
   "locales_standard.md",

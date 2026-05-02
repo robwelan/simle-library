@@ -42,7 +42,13 @@ If you modify the Rust logic in src/lib.rs, you must rebuild the WebAssembly
 binaries so the browser can see the changes.
 
 ```bash
-wasm-pack build \--target web
+# 1. Compile the Rust code to WASM
+wasm-pack build --target web
+
+# 2. Sync the output to your docs folder
+# (Adjust paths if your structure differs slightly)
+cp pkg/simle_engine_core_bg.wasm docs/wasm/
+cp pkg/simle_engine_core.js docs/wasm/
 ```
 
 ### **2\. Note on Syncing**
@@ -58,6 +64,12 @@ to be out of sync.
 
 ```bash
 git pull \--rebase origin main
+```
+
+### **3\. gh-pages new**
+
+```bash
+npx gh-pages -d . -m "Publish SIMLE Book"
 ```
 
 ## **🚀 Supporting the Project**

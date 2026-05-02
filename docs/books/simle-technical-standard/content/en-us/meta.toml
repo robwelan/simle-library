@@ -2,6 +2,8 @@ locale_name = "English (US)"
 title = "SIMLE Technical Standard"
 author = "Robert Michael Welan"
 description = "Defining the blueprint for the next generation of digital storytelling. Discover the framework behind the SIMLE engine—a revolutionary standard for responsive, high-fidelity interactive books."
+publisher = ""
+keywords = ["fiction", "adventure"]
 
 [cover_wordmarks]
 # Localized Wordmarks (Assets specific to this language)

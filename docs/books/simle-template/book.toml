@@ -2,13 +2,14 @@
 id = "template-placeholder-id"
 version = "1.0.0"
 author = "your-handle"
+isbn = ""
 
 [structure]
 # Define your language tracks. First is default.
 locales = ["en-us", "zh-py"]
 
 # The reading order of your pages
-manifest = [
+content = [
   "chapter01-page01.md"
 ]
 

@@ -1,71 +1,75 @@
 use serde::{Serialize, Deserialize};
 
-/// Global identity and technical identifiers for the publication.
-/// Aligns with the [project] block in book.toml.
+// ==========================================================
+// 1. GLOBAL CONFIGURATION (book.toml)
+// ==========================================================
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ProjectInfo {
-    /// Unique slug/ID for library indexing.
+pub struct ProjectConfig {
     pub id: String,
-    /// Global ISBN (one per .simle file).
-    pub isbn: String,
-    /// Current edition version (e.g., "2.1.0").
     pub version: String,
-    /// Internal engine compatibility version (required by lib.rs).
-    pub engine_version: String,
+    pub global_isbn: Option<String>,
 }
 
-/// Defines technical file mapping and reading order.
-/// Aligns with the [structure] block in book.toml.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct StructureConfig {
-    /// Supported language folders in /content/.
     pub locales: Vec<String>,
-    /// THE MASTER SEQUENCE: Defines the exact page order.
     pub content: Vec<String>,
-    /// Technical manifest list (required by current Rust implementation).
-    pub manifest: Vec<String>,
 }
 
-/// The root manifest structure for book.toml.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CoverConfig {
+    pub book_cover_layout: String,
+    pub cover_background_landscape: String,
+    pub cover_background_portrait: String,
+}
+
+/// The Master Blueprint parsed from the root book.toml
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BookConfig {
-    pub project: ProjectInfo,
+    pub project: ProjectConfig,
     pub structure: StructureConfig,
     pub cover: CoverConfig,
 }
 
-/// Media and theme configuration.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CoverConfig {
-    /// Background image path, typically in /assets/.
-    pub cover_background_landscape: String,
-    /// Theme accent color (e.g., "#ff0000").
-    pub accent_color: Option<String>,
-}
+// ==========================================================
+// 2. LOCALIZED IDENTITY (meta.toml)
+// ==========================================================
 
-/// Localized identity found in /content/[locale]/meta.toml.
+/// Represents the localized metadata found in /content/{locale}/meta.toml
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MetaConfig {
-    /// The language name as it appears in the UI (e.g., "日本語").
-    pub locale_name: String,
-    /// Translated title of the book.
+    pub locale_name: String, // e.g., "English" or "简体中文"
     pub title: String,
-    /// Localized author name.
     pub author: String,
-    /// Short localized blurb for library view.
     pub description: String,
-    /// Localized publisher branch name.
     pub publisher: String,
-    /// Localized search terms for the reader engine.
     pub keywords: Vec<String>,
-    /// Optional global ISBN shadowed in the local meta.
     pub isbn: Option<String>,
 }
 
-/// Helper for library indexing and engine routing.
+// ==========================================================
+// 3. INFRASTRUCTURE (paths.json)
+// ==========================================================
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WebPaths {
+    pub server_books_base: String,
+}
+
+/// System-level path resolution parsed from paths.json
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ProjectPaths {
+    pub web_paths: WebPaths,
+}
+
+// ==========================================================
+// 4. LIBRARY INDEX (library.json)
+// ==========================================================
+
+/// Represents a single entry in the bookshelf index
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LibraryEntry {
-    pub id: String,
-    pub config_path: String,
-    pub meta_path: String,
+    pub path: String,
+    pub active_locale: String,
 }

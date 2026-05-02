@@ -2,11 +2,14 @@
   "name": "@robwelan/simle-library",
   "version": "1.0.16",
   "description": "Standard for Multilingual Technical Education Powered by Rust/Wasm",
-  "main": "docs/index.html",
+  "type": "module",
+  "main": "web/index.html",
   "scripts": {
-    "build:wasm": "wasm-pack build --target web",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx serve docs"
+    "build:wasm": "wasm-pack build --target web --out-dir wasm",
+    "dev": "npx serve .",
+    "predeploy": "npm run build:wasm",
+    "deploy": "gh-pages -d web -a books -a shared_assets -a wasm",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -21,5 +24,7 @@
   ],
   "author": "robwelan",
   "license": "MIT",
-  "type": "module"
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
 }

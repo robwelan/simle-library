@@ -12,7 +12,7 @@ export class SimleEngine {
         wasm.__wbg_simleengine_free(ptr, 0);
     }
     /**
-     * Returns the primary locale as defined in the global manifest.
+     * Returns the primary locale as defined in the global manifest (book.toml).
      * @returns {string}
      */
     get_default_locale() {
@@ -38,6 +38,7 @@ export class SimleEngine {
         return ret;
     }
     /**
+     * Returns the localized title from meta.toml
      * @returns {string}
      */
     get_title() {
@@ -53,23 +54,46 @@ export class SimleEngine {
         }
     }
     /**
-     * The constructor takes JSON strings from the JS host.
-     * Validates the structure against the SIMLE Schema (ProjectInfo & StructureConfig).
-     * @param {string} config_json
-     * @param {string} meta_json
+     * The constructor takes strings from the JS host.
+     * book_toml and meta_toml are strictly parsed as TOML per the SIMLE standard.
+     * paths_json is parsed as JSON for infrastructure routing.
+     * @param {string} book_toml
+     * @param {string} meta_toml
+     * @param {string} paths_json
      */
-    constructor(config_json, meta_json) {
-        const ptr0 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    constructor(book_toml, meta_toml, paths_json) {
+        const ptr0 = passStringToWasm0(book_toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(meta_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr1 = passStringToWasm0(meta_toml, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.simleengine_new(ptr0, len0, ptr1, len1);
+        const ptr2 = passStringToWasm0(paths_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.simleengine_new(ptr0, len0, ptr1, len1, ptr2, len2);
         if (ret[2]) {
             throw takeFromExternrefTable0(ret[1]);
         }
         this.__wbg_ptr = ret[0] >>> 0;
         SimleEngineFinalization.register(this, this.__wbg_ptr, this);
         return this;
+    }
+    /**
+     * Uses the paths.json 'web_paths' to resolve an asset's full URL.
+     * @param {string} asset_name
+     * @returns {string}
+     */
+    resolve_asset_path(asset_name) {
+        let deferred2_0;
+        let deferred2_1;
+        try {
+            const ptr0 = passStringToWasm0(asset_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            const len0 = WASM_VECTOR_LEN;
+            const ret = wasm.simleengine_resolve_asset_path(this.__wbg_ptr, ptr0, len0);
+            deferred2_0 = ret[0];
+            deferred2_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        }
     }
     /**
      * Total pages = Static pages (3) + Length of the Master Content Sequence.

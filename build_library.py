@@ -7,25 +7,29 @@ import tomllib
 # ==========================================
 
 def load_paths():
-    """Reads project paths from paths.json in the script's root directory."""
+    """Reads project paths from web/paths.json."""
+    # We assume the script is in the project root
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    paths_file = os.path.join(script_dir, "paths.json")
 
-    # Default values in case paths.json is missing or broken
+    # UPDATED: Look inside the 'web' folder for the config
+    paths_file = os.path.join(script_dir, "web", "paths.json")
+
+    # Default settings
     config = {
         "search_dir": "books",
-        "output_dir": "docs"
+        "output_dir": "web"
     }
 
     if os.path.exists(paths_file):
         try:
             with open(paths_file, "r", encoding="utf-8") as f:
-                config.update(json.load(f))
+                loaded_config = json.load(f)
+                config.update(loaded_config)
             print(f"[✓] Loaded configuration from {paths_file}")
         except Exception as e:
-            print(f"[!] Warning: Could not parse paths.json. Using defaults. Error: {e}")
+            print(f"[!] Warning: Could not parse paths.json at {paths_file}. Using defaults. Error: {e}")
     else:
-        print(f"[!] Warning: paths.json not found in {script_dir}. Using defaults.")
+        print(f"[!] Warning: paths.json not found in {os.path.join(script_dir, 'web')}. Using defaults.")
 
     return config
 
@@ -103,7 +107,7 @@ def get_book_metadata(book_folder_path):
         return None
 
 def build_library():
-    """Scans the search directory and writes library.json based on paths.json."""
+    """Scans the search directory and writes library.json to the web folder."""
 
     # 1. Load dynamic paths
     config = load_paths()
@@ -115,16 +119,17 @@ def build_library():
     abs_search_dir = os.path.normpath(os.path.join(script_dir, SEARCH_DIR))
     abs_output_dir = os.path.normpath(os.path.join(script_dir, OUTPUT_DIR))
 
-    print("\n--- PATH DEBUGGING ---")
-    print(f"Script Dir: {script_dir}")
-    print(f"Looking in: {abs_search_dir}")
-    print(f"Writing to: {abs_output_dir}")
-    print("----------------------\n")
+    print("\n--- SIMPLE LIBRARY BUILDER ---")
+    print(f"Project Root: {script_dir}")
+    print(f"Scanning:     {abs_search_dir}")
+    print(f"Outputting:   {abs_output_dir}/library.json")
+    print("------------------------------\n")
 
     if not os.path.exists(abs_search_dir):
         print(f"ERROR: The search directory '{abs_search_dir}' does not exist.")
         return
 
+    # Ensure output directory exists
     if not os.path.exists(abs_output_dir):
         print(f"Creating output directory: {abs_output_dir}")
         os.makedirs(abs_output_dir, exist_ok=True)
@@ -136,18 +141,18 @@ def build_library():
         book_folder = os.path.join(abs_search_dir, item)
         if os.path.isdir(book_folder):
             if os.path.exists(os.path.join(book_folder, BOOK_TOML_NAME)):
-                print(f"--> Processing: {item}")
+                print(f"--> Found Book: {item}")
                 metadata = get_book_metadata(book_folder)
                 if metadata:
                     library.append(metadata)
 
-    # 4. Output to library.json
+    # 4. Output to library.json inside the output folder
     output_file = os.path.join(abs_output_dir, "library.json")
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(library, f, indent=4, ensure_ascii=False)
 
     print("-" * 30)
-    print(f"Success: Generated {output_file} with {len(library)} books.")
+    print(f"Success: Generated library.json with {len(library)} books.")
 
 if __name__ == "__main__":
     build_library()

@@ -4,23 +4,27 @@ version = "0.0.1"
 edition = "2021"
 authors = ["robwelan"]
 description = "High-performance core for the Simple Interactive Multilingual Learning Engine"
-
-# Build Location Note:
-# This source now lives in the root directory / to fix the GitHub Action path error.
-# The output .wasm should be copied to /shared-assets/wasm/ after build.
+repository = "https://github.com/robwelan/simle-library"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+# Standard WASM bindings
 wasm-bindgen = "0.2.92"
-serde = { version = "1.0", features = ["derive"] }
-# FIXED: Changed underscore to hyphen to match crates.io naming
-serde-wasm-bindgen = "0.6.5"
 js-sys = "0.3.69"
+
+# Serialization logic
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde-wasm-bindgen = "0.6.5"
+
+# NEW: Required to parse your .toml files
+toml = "0.8.12"
 
 [profile.release]
+# Optimize for smallest binary size
 opt-level = "z"
 lto = true
 codegen-units = 1

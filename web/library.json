@@ -1,0 +1,28 @@
+[
+    {
+        "id": "std-001",
+        "version": "1.0.0",
+        "title": "SIMLE Technical Standard",
+        "author": "Robert Michael Welan",
+        "description": "Defining the blueprint for the next generation of digital storytelling. Discover the framework behind the SIMLE engine—a revolutionary standard for responsive, high-fidelity interactive books.",
+        "icon": "📚",
+        "cover_color": "#0984e3",
+        "path": "simle-technical-standard",
+        "active_locale": "en-us",
+        "landscape": "cover_art_landscape.webp",
+        "portrait": "cover_art_portrait.webp"
+    },
+    {
+        "id": "template-placeholder-id",
+        "version": "1.0.0",
+        "title": "My Template Book",
+        "author": "Author Name",
+        "description": "A starter template for the SIMLE engine.",
+        "icon": "📚",
+        "cover_color": "#0984e3",
+        "path": "simle-template",
+        "active_locale": "en-us",
+        "landscape": "",
+        "portrait": ""
+    }
+]

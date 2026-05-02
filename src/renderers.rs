@@ -1,13 +1,15 @@
-use crate::schema::{BookConfig, MetaConfig};
+use crate::schema::{BookConfig, MetaConfig, ProjectPaths};
 use serde::{Deserialize, Serialize};
 
 /// Data structure for the Book Cover page
+/// Matches the SIMLE Cover & Branding Logic for layered architecture.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CoverPage {
     pub title: String,
     pub author: String,
-    pub background_url: String,
-    pub accent_color: String,
+    pub layout: String,
+    pub bg_landscape_url: String,
+    pub bg_portrait_url: String,
 }
 
 /// Data structure for the Metadata/Copyright page
@@ -18,7 +20,6 @@ pub struct MetaPage {
     pub description: String,
     pub publisher: String,
     pub isbn: Option<String>,
-    pub engine_version: String,
 }
 
 /// Data structure for the Table of Contents page
@@ -29,48 +30,45 @@ pub struct ToCPage {
     pub chapters: Vec<String>,
 }
 
-/// Builds the data required for the Cover page
-pub fn build_cover(config: &BookConfig, meta: &MetaConfig) -> CoverPage {
+/// Builds the data required for the Cover page.
+/// Resolves asset paths through the standard /assets/ directory.
+pub fn build_cover(book_toml: &BookConfig, meta_toml: &MetaConfig, paths: &ProjectPaths) -> CoverPage {
+    // Construct base URL for this book's asset folder
+    // Format: {base_url}/{book_id}/assets
+    let asset_base = format!(
+        "{}/{}/assets",
+        paths.web_paths.server_books_base,
+        book_toml.project.id
+    );
+
     CoverPage {
-        title: meta.title.clone(),
-        author: meta.author.clone(),
-        background_url: config.cover.cover_background_landscape.clone(),
-        accent_color: config.cover.accent_color.clone().unwrap_or_else(|| "#000000".to_string()),
+        title: meta_toml.title.clone(),
+        author: meta_toml.author.clone(),
+        layout: book_toml.cover.book_cover_layout.clone(),
+        // Assets are pulled from the root assets folder per SIMLE spec
+        bg_landscape_url: format!("{}/{}", asset_base, book_toml.cover.cover_background_landscape),
+        bg_portrait_url: format!("{}/{}", asset_base, book_toml.cover.cover_background_portrait),
     }
 }
 
-/// Builds the data required for the Book Metadata page
-pub fn build_meta(config: &BookConfig, meta: &MetaConfig) -> MetaPage {
+/// Builds the data required for the Book Metadata page.
+/// Combines Localized Identity (meta.toml) with Global structural data.
+pub fn build_meta(_book_toml: &BookConfig, meta_toml: &MetaConfig) -> MetaPage {
     MetaPage {
-        title: meta.title.clone(),
-        author: meta.author.clone(),
-        description: meta.description.clone(),
-        publisher: meta.publisher.clone(),
-        isbn: meta.isbn.clone(),
-        engine_version: config.project.engine_version.clone(),
+        title: meta_toml.title.clone(),
+        author: meta_toml.author.clone(),
+        description: meta_toml.description.clone(),
+        publisher: meta_toml.publisher.clone(),
+        isbn: meta_toml.isbn.clone(),
     }
 }
 
 /// Builds the data required for the Table of Contents page.
-/// Dynamically calculates chapter_count from the content master sequence.
-pub fn build_toc(config: &BookConfig, _meta: &MetaConfig) -> ToCPage {
+/// Derived from the Master Sequence in book.toml.
+pub fn build_toc(book_toml: &BookConfig, _meta_toml: &MetaConfig) -> ToCPage {
     ToCPage {
         title: "Table of Contents".to_string(),
-        // Fix: Use .len() on the content array instead of a hardcoded field
-        chapter_count: config.structure.content.len() as u32,
-        chapters: config.structure.content.clone(),
-    }
-}
-
-/// Legacy renderer for full HTML output if needed
-pub struct HtmlRenderer;
-
-impl HtmlRenderer {
-    pub fn render_book(config: &BookConfig, meta: &MetaConfig) -> String {
-        let cover = build_cover(config, meta);
-        format!(
-            "<div style='background-image: url({}); color: {}'><h1>{}</h1><p>{}</p></div>",
-            cover.background_url, cover.accent_color, cover.title, cover.author
-        )
+        chapter_count: book_toml.structure.content.len() as u32,
+        chapters: book_toml.structure.content.clone(),
     }
 }

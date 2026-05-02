@@ -1,4 +1,3 @@
-# File Path: .github/workflows/deploy.yml
 name: Build and Deploy SIMLE Engine
 
 on:
@@ -11,10 +10,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
 
 jobs:
-  build-wasm:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -22,6 +21,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Matches tomllib availability
 
       - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -32,43 +38,53 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Build Wasm Engine
-        run: wasm-pack build --target web
+        run: wasm-pack build --target web --out-dir wasm
 
-      - name: Sync Assets and Content to Docs
-        run: |
-          # 1. Sync WASM binaries to the Root Shared Assets ONLY
-          # This is our Source of Truth.
-          mkdir -p shared-assets/wasm
-          cp pkg/simle_engine_core.js shared-assets/wasm/
-          cp pkg/simle_engine_core_bg.wasm shared-assets/wasm/
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-          # 2. Sync Books to Docs
-          if [ -d "books" ]; then
-            rm -rf docs/books
-            cp -r books docs/
-          fi
-
-          # 3. Sync Shared Assets to Docs
-          # This move automatically carries the WASM files we just updated in step 1.
-          if [ -d "shared-assets" ]; then
-            rm -rf docs/shared-assets
-            cp -r shared-assets docs/
-          fi
-
-          # 4. Sync Config Files
-          if [ -f "paths.json" ]; then
-            cp paths.json docs/
-          fi
-
-      - name: Update Version in package.json
+      - name: Update Version
         run: npm version patch --no-git-tag-version
 
-      - name: Commit and Push Changes
+      # NEW STEP: Generate the library registry
+      - name: Generate Library Registry
+        run: python build_library.py
+
+      - name: Assemble Deployment Bundle
+        run: |
+          # Create a temporary deployment directory
+          mkdir -p _site
+
+          # 1. Copy the Frontend (UI/HTML)
+          # Note: library.json was just generated into web/ by the python script
+          cp -r web/* _site/
+
+          # 2. Copy the newly built WASM binaries
+          cp -r wasm _site/
+
+          # 3. Copy the content Library
+          if [ -d "books" ]; then
+            cp -r books _site/
+          fi
+
+          # 4. Copy the Shared Assets (Branding/Art)
+          if [ -d "shared_assets" ]; then
+            cp -r shared_assets _site/
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: gh-pages
+          commit_message: "chore: deploy simle engine [skip ci]"
+
+      - name: Push Version Update to Main
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # We no longer need to add docs/wasm/ because it doesn't exist anymore!
-          git add docs/books/ docs/shared-assets/ docs/paths.json shared-assets/ package.json
-
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: sync engine and assets [skip ci]" && git push)
+          git add package.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: bump version [skip ci]" && git push origin ${{ github.ref_name }})

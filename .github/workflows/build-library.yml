@@ -1,13 +1,23 @@
 name: Build Library Manifest
-on: [push]
+on:
+  push:
+    paths:
+      - 'books/**'
+      - 'web/paths.json'
+      - 'build_library.py'
+    branches: [main, master]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -16,16 +26,15 @@ jobs:
 
       - name: Commit manifest
         run: |
-          git config --global user.name 'Library Bot'
-          git config --global user.email 'bot@simple.org'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-          # Stage the specific file in the docs directory
-          git add docs/library.json
+          # This matches your script's output logic (web/library.json)
+          git add web/library.json
 
-          # Only commit if there are changes to library.json
           if git diff --staged --quiet; then
             echo "No changes to library.json"
           else
-            git commit -m "chore: update library manifest"
+            git commit -m "chore: sync library manifest [skip ci]"
             git push
           fi

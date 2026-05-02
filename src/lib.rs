@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 mod schema;
 mod renderers;
 
-use crate::schema::{BookConfig, MetaConfig};
+// Synchronized imports with schema.rs
+use crate::schema::{BookConfig, MetaConfig, ProjectPaths};
 use crate::renderers::{CoverPage, MetaPage, ToCPage};
 
 /// Defines the structure of pages sent to the JavaScript frontend.
@@ -27,35 +28,48 @@ pub enum VirtualPage {
 pub struct SimleEngine {
     config: BookConfig,
     meta: MetaConfig,
+    paths: ProjectPaths, // Internal logic uses this for asset resolution
 }
 
 #[wasm_bindgen]
 impl SimleEngine {
-    /// The constructor takes JSON strings from the JS host.
-    /// Validates the structure against the SIMLE Schema (ProjectInfo & StructureConfig).
+    /// The constructor takes strings from the JS host.
+    /// book_toml and meta_toml are strictly parsed as TOML per the SIMLE standard.
+    /// paths_json is parsed as JSON for infrastructure routing.
     #[wasm_bindgen(constructor)]
-    pub fn new(config_json: &str, meta_json: &str) -> Result<SimleEngine, JsValue> {
-        let config: BookConfig = serde_json::from_str(config_json)
-            .map_err(|e| JsValue::from_str(&format!("WASM: Config Parse Error: {}", e)))?;
+    pub fn new(book_toml: &str, meta_toml: &str, paths_json: &str) -> Result<SimleEngine, JsValue> {
+        // Parse Global Controller (book.toml)
+        let config: BookConfig = toml::from_str(book_toml)
+            .map_err(|e| JsValue::from_str(&format!("WASM: book.toml Parse Error: {}", e)))?;
 
-        let meta: MetaConfig = serde_json::from_str(meta_json)
-            .map_err(|e| JsValue::from_str(&format!("WASM: Meta Parse Error: {}", e)))?;
+        // Parse Localized Identity (meta.toml)
+        let meta: MetaConfig = toml::from_str(meta_toml)
+            .map_err(|e| JsValue::from_str(&format!("WASM: meta.toml Parse Error: {}", e)))?;
 
-        Ok(SimleEngine { config, meta })
+        // Parse Infrastructure (paths.json)
+        let paths: ProjectPaths = serde_json::from_str(paths_json)
+            .map_err(|e| JsValue::from_str(&format!("WASM: paths.json Parse Error: {}", e)))?;
+
+        Ok(SimleEngine { config, meta, paths })
     }
 
     /// Fetches a specific page by index.
     /// 0: Cover, 1: Metadata, 2: Table of Contents, 3+: Content Sequence.
     pub fn get_page(&self, index: u32) -> JsValue {
         let page = match index {
-            0 => VirtualPage::Cover(renderers::build_cover(&self.config, &self.meta)),
+            // Static Page 0: Cover
+            0 => VirtualPage::Cover(renderers::build_cover(&self.config, &self.meta, &self.paths)),
+
+            // Static Page 1: Localized Metadata
             1 => VirtualPage::BookMeta(renderers::build_meta(&self.config, &self.meta)),
+
+            // Static Page 2: Table of Contents
             2 => VirtualPage::ToC(renderers::build_toc(&self.config, &self.meta)),
+
+            // Dynamic Content: Chapters defined in book.toml master sequence
             _ => {
-                // Adjust index for static offset (Cover, Meta, ToC)
                 let content_idx = index as i32 - 3;
 
-                // Validate against the Master Sequence defined in book.toml
                 if content_idx >= 0 && content_idx < self.config.structure.content.len() as i32 {
                     let filename = &self.config.structure.content[content_idx as usize];
 
@@ -73,16 +87,22 @@ impl SimleEngine {
         serde_wasm_bindgen::to_value(&page).unwrap_or(JsValue::NULL)
     }
 
+    /// Uses the paths.json 'web_paths' to resolve an asset's full URL.
+    pub fn resolve_asset_path(&self, asset_name: &str) -> String {
+        format!("{}/{}", self.paths.web_paths.server_books_base, asset_name)
+    }
+
     /// Total pages = Static pages (3) + Length of the Master Content Sequence.
     pub fn total_pages(&self) -> u32 {
         3 + self.config.structure.content.len() as u32
     }
 
+    /// Returns the localized title from meta.toml
     pub fn get_title(&self) -> String {
         self.meta.title.clone()
     }
 
-    /// Returns the primary locale as defined in the global manifest.
+    /// Returns the primary locale as defined in the global manifest (book.toml).
     pub fn get_default_locale(&self) -> String {
         self.config.structure.locales.first()
             .cloned()
