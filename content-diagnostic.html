@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simle Engine Content Diagnostic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8 font-mono text-sm">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4 border-b border-slate-700 pb-2">Content Diagnostic</h1>
+
+        <div id="status" class="p-4 rounded mb-6 bg-slate-800 border border-slate-700 whitespace-pre-wrap">
+            Initializing Diagnostic...
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button id="prev" class="bg-slate-700 p-3 rounded hover:bg-slate-600 transition-colors">← Previous Page</button>
+            <button id="next" class="bg-slate-700 p-3 rounded hover:bg-slate-600 transition-colors">Next Page →</button>
+        </div>
+
+        <div id="viewer" class="bg-slate-950 border border-slate-800 rounded-lg p-6 min-h-[400px] overflow-auto shadow-2xl">
+            <pre id="content" class="text-blue-300">Waiting for engine...</pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import init, { SimleEngine } from './wasm/simle_engine_core.js';
+
+        let engine;
+        let currentPage = 0;
+
+        async function run() {
+            const status = document.getElementById('status');
+
+            try {
+                // 1. WASM Init
+                // Using the standard path for the wasm binary
+                await init('./wasm/simle_engine_core_bg.wasm');
+                updateStatus("✔ WASM Binary Initialized", "blue");
+
+                // 2. Fetch Infrastructure
+                const pathsRes = await fetch('./paths.json');
+                const paths = await pathsRes.json();
+
+                const libRes = await fetch('./library.json');
+                const library = await libRes.json();
+
+                // Select the first book and define the base path
+                const bookData = library[0];
+                const base = paths.web_paths.server_books_base;
+                const bookRoot = `${base}/${bookData.path}`;
+
+                // 3. Fetch SIMLE Manifests (TOML)
+                updateStatus(`Acquiring Global and Localized Manifests...`, "yellow");
+
+                const configUrl = `${bookRoot}/book.toml`;
+                const metaUrl = `${bookRoot}/content/${bookData.active_locale}/meta.toml`;
+
+                // Fetch both TOML files simultaneously
+                const [resConfig, resMeta] = await Promise.all([
+                    fetch(configUrl),
+                    fetch(metaUrl)
+                ]);
+
+                if (!resConfig.ok) throw new Error(`HTTP ${resConfig.status}: Failed to fetch Global Config at ${configUrl}`);
+                if (!resMeta.ok) throw new Error(`HTTP ${resMeta.status}: Failed to fetch Local Meta at ${metaUrl}`);
+
+                const configToml = await resConfig.text();
+                const metaToml = await resMeta.text();
+
+                updateStatus("✔ book.toml and meta.toml Acquired", "blue");
+
+                // 4. Engine Instantiation
+                // Arguments match SimleEngine::new(config_toml, meta_toml, paths_json)
+                console.log("Instantiating SIMLE Engine...");
+
+                engine = new SimleEngine(
+                    configToml,
+                    metaToml,
+                    JSON.stringify(paths)
+                );
+
+                // Success Styling
+                status.className = "p-4 rounded mb-6 bg-green-900 border border-green-700 text-green-100";
+                status.innerText = `READY: ${engine.get_title()} (${engine.total_pages()} pages)`;
+
+                updatePage();
+
+            } catch (e) {
+                console.error("Diagnostic caught an error:", e);
+                status.className = "p-4 rounded mb-6 bg-red-900 border border-red-700 text-red-100";
+
+                let errorMsg = "Unknown Error";
+                if (typeof e === "string") errorMsg = e;
+                else if (e instanceof Error) errorMsg = e.message;
+                else if (e && typeof e === "object") errorMsg = JSON.stringify(e);
+
+                status.innerHTML = `<strong>Diagnostic Error:</strong><br>${errorMsg}<br><br><small>Check Browser Console (F12) for details.</small>`;
+            }
+        }
+
+        function updateStatus(msg, color) {
+            const status = document.getElementById('status');
+            const colorClass = color === "blue" ? "text-blue-400" : "text-yellow-400";
+            const div = document.createElement('div');
+            div.className = colorClass + " mt-1";
+            div.innerText = "→ " + msg;
+            status.appendChild(div);
+        }
+
+        function updatePage() {
+            if (!engine) return;
+            // Fetches data from the Rust engine based on index
+            const data = engine.get_page(currentPage);
+            document.getElementById('content').innerText = JSON.stringify(data, null, 2);
+        }
+
+        document.getElementById('next').onclick = () => {
+            if (currentPage < engine.total_pages() - 1) {
+                currentPage++;
+                updatePage();
+            }
+        };
+
+        document.getElementById('prev').onclick = () => {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePage();
+            }
+        };
+
+        run();
+    </script>
+</body>
+</html>

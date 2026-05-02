@@ -1,0 +1,5 @@
+{
+  "books_dir": "../books",
+  "output_file": "library.json",
+  "web_dir": "."
+}
