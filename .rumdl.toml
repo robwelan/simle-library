@@ -1,0 +1,10 @@
+# Set a global default line length
+line-length = 80
+
+# Specifically configure the MD013 rule for reflowing
+[MD013]
+line-length = 80
+code-blocks = false  # Optional: Don't reflow code blocks
+tables = false       # Optional: Don't reflow tables
+headings = true      # Optional: Reflow long headings
+reflow = true        # REQUIRED: Enables the reflow behavior
