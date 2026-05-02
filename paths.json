@@ -7,10 +7,13 @@
   },
   "distribution": {
     "docs_dir": "docs/",
-    "manifest_file": "docs/library.json"
+    "manifest_file": "docs/library.json",
+    "docs_books": "docs/books/",
+    "docs_assets": "docs/shared-assets/"
   },
   "web_paths": {
-    "books_base": "books",
-    "assets_base": "assets/images"
+    "local_books_base": "../books",
+    "server_books_base": "./books",
+    "assets_subfolder": "assets/images"
   }
 }

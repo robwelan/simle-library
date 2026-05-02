@@ -36,27 +36,25 @@
     </main>
 
     <script>
-        // Configuration Constants
-        const IMAGE_SUBFOLDER = 'assets/images';
-
         async function initLibrary() {
             const grid = document.getElementById('library-grid');
 
             try {
-                // --- SMART PATH LOGIC ---
-                // If the URL contains 'github.io', we are on the server and use './books' (inside docs)
-                // If the URL is 'localhost' or a file path, we use '../books' (root)
                 const isGitHub = window.location.hostname.includes('github.io');
-                const baseBooksUrl = isGitHub ? './books' : '../books';
 
-                // Paths config is usually sibling to the entry point
-                const pathsConfigUrl = isGitHub ? './paths.json' : '../paths.json';
-                // --- END SMART PATH LOGIC ---
+                // 1. Fetch Paths Configuration
+                // Local: fetch from '../paths.json' | GitHub: fetch from './paths.json'
+                const pathsResponse = await fetch(isGitHub ? './paths.json' : '../paths.json');
+                if (!pathsResponse.ok) throw new Error('Could not load paths.json');
+                const paths = await pathsResponse.json();
 
-                // 1. Fetch the library JSON (resides in the same folder as this HTML)
+                // Determine dynamic bases from paths.json
+                const baseBooksUrl = isGitHub ? paths.web_paths.server_books_base : paths.web_paths.local_books_base;
+                const imageSubfolder = paths.web_paths.assets_subfolder;
+
+                // 2. Fetch the Library Manifest
                 const response = await fetch('./library.json');
                 if (!response.ok) throw new Error('Could not load library.json');
-
                 const books = await response.json();
 
                 if (books.length === 0) {
@@ -72,10 +70,9 @@
                     const icon = book.icon || '📚';
                     const version = book.version || '1.0.0';
 
-                    // Use the calculated base URL
                     const readerUrl = `${baseBooksUrl}/${bookFolder}/index.html`;
                     const hasImage = landscapeFile !== "";
-                    const imageUrl = hasImage ? `${baseBooksUrl}/${bookFolder}/${IMAGE_SUBFOLDER}/${landscapeFile}` : null;
+                    const imageUrl = hasImage ? `${baseBooksUrl}/${bookFolder}/${imageSubfolder}/${landscapeFile}` : null;
 
                     return `
                         <article class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-slate-200 flex flex-col h-full">

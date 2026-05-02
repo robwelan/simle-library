@@ -3,19 +3,11 @@ name: Build and Deploy SIMLE Engine
 
 on:
   push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+    branches: [main, master]
   workflow_dispatch:
 
-# This block prevents the "Higher Priority" cancellation errors by
-# allowing GitHub to cancel an older, pending run to favor the newest push.
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: true
 
 env:
@@ -44,39 +36,39 @@ jobs:
 
       - name: Sync Assets and Content to Docs
         run: |
-          mkdir -p docs/wasm
+          # 1. Sync WASM binaries to the Root Shared Assets ONLY
+          # This is our Source of Truth.
           mkdir -p shared-assets/wasm
-          SOURCE_PATH="pkg"
+          cp pkg/simle_engine_core.js shared-assets/wasm/
+          cp pkg/simle_engine_core_bg.wasm shared-assets/wasm/
 
-          # 1. Sync WASM binaries
-          cp $SOURCE_PATH/simle_engine_core.js docs/wasm/
-          cp $SOURCE_PATH/simle_engine_core_bg.wasm docs/wasm/
-          cp $SOURCE_PATH/simle_engine_core.js shared-assets/wasm/
-          cp $SOURCE_PATH/simle_engine_core_bg.wasm shared-assets/wasm/
-
-          # 2. Sync Content
-          # Physically copy the root 'books' folder into 'docs'
-          # so GitHub Pages can serve them from the same root.
+          # 2. Sync Books to Docs
           if [ -d "books" ]; then
-            echo "Copying books folder to docs for deployment..."
-            # Using -rf to ensure existing content in docs/books is updated correctly
             rm -rf docs/books
             cp -r books docs/
-          else
-            echo "Warning: 'books' directory not found at root."
+          fi
+
+          # 3. Sync Shared Assets to Docs
+          # This move automatically carries the WASM files we just updated in step 1.
+          if [ -d "shared-assets" ]; then
+            rm -rf docs/shared-assets
+            cp -r shared-assets docs/
+          fi
+
+          # 4. Sync Config Files
+          if [ -f "paths.json" ]; then
+            cp paths.json docs/
           fi
 
       - name: Update Version in package.json
-        run: |
-          npm version patch --no-git-tag-version
+        run: npm version patch --no-git-tag-version
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Include docs/books in the git add to ensure content updates are pushed
-          git add docs/wasm/ docs/books/ shared-assets/wasm/ package.json
+          # We no longer need to add docs/wasm/ because it doesn't exist anymore!
+          git add docs/books/ docs/shared-assets/ docs/paths.json shared-assets/ package.json
 
-          # [skip ci] is used to prevent the bot's own commit from triggering another build loop
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: sync wasm and books content [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: sync engine and assets [skip ci]" && git push)

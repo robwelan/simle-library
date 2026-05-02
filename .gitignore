@@ -5,3 +5,18 @@ dist/
 
 # Ignore the private archives in here (drafts, experiments, raw assets)
 archives/
+
+# --- Rust & WASM Artifacts ---
+# This is the heavy folder created by Cargo (lib.rs compilation)
+target/
+
+# This is the staging folder created by wasm-pack
+pkg/
+
+# --- System & Environment ---
+# Mac/Windows system files
+.DS_Store
+Thumbs.db
+
+# in case of other scripts
+node_modules/
