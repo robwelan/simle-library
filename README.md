@@ -23,7 +23,7 @@ loading .json or .toml files, use a local HTTP server.
 **Run using npx:**
 
 ```bash
-npx http-server . \-p 8000 \--cors \-c-1
+npx http-server . -p 8000 --cors -c-1
 ```
 
 * **\-p 8000**: Runs the server on port 8000\.
@@ -46,7 +46,7 @@ to be out of sync.
 **Always pull before pushing:**
 
 ```bash
-git pull \--rebase origin main
+git pull --rebase origin main
 ```
 
 ## **🚀 Supporting the Project**
