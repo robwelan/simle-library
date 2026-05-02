@@ -8,7 +8,8 @@
     "build:wasm": "wasm-pack build --target web --out-dir wasm",
     "dev": "npx serve .",
     "predeploy": "npm run build:wasm",
-    "deploy": "gh-pages -d web -a books -a shared_assets -a wasm",
+    "deploy": "gh-pages -d web -a -add wasm -add books -add shared_assets",
+    "clean:docs": "rm -rf docs && git add docs && git commit -m 'remove legacy docs folder'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

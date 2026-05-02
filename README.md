@@ -36,6 +36,14 @@ Access your local library at: [http://localhost:8000](http://localhost:8000)
 
 ## **🛠 Developer Workflow (Important)**
 
+### **0\. Building the web\library.json
+
+```bash
+python3 build_library.py
+```
+
+NOTE: you may need to change python3 depending on your environment
+
 ### **1\. Compiling the Engine**
 
 If you modify the Rust logic in src/lib.rs, you must rebuild the WebAssembly

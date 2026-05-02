@@ -24,10 +24,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # Matches tomllib availability
+          python-version: '3.11'
 
       - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -37,18 +43,15 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
+      - name: Install Dependencies
+        run: npm install
+
       - name: Build Wasm Engine
         run: wasm-pack build --target web --out-dir wasm
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
 
       - name: Update Version
         run: npm version patch --no-git-tag-version
 
-      # NEW STEP: Generate the library registry
       - name: Generate Library Registry
         run: python build_library.py
 
@@ -57,19 +60,19 @@ jobs:
           # Create a temporary deployment directory
           mkdir -p _site
 
-          # 1. Copy the Frontend (UI/HTML)
-          # Note: library.json was just generated into web/ by the python script
+          # 1. Copy the Frontend (UI/HTML) from /web
+          # This includes the newly generated library.json
           cp -r web/* _site/
 
-          # 2. Copy the newly built WASM binaries
+          # 2. Copy the newly built WASM binaries into the site root
           cp -r wasm _site/
 
-          # 3. Copy the content Library
+          # 3. Copy the content Library (books)
           if [ -d "books" ]; then
             cp -r books _site/
           fi
 
-          # 4. Copy the Shared Assets (Branding/Art)
+          # 4. Copy the Shared Assets
           if [ -d "shared_assets" ]; then
             cp -r shared_assets _site/
           fi
@@ -87,4 +90,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json
+          # Only push if package.json actually changed
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: bump version [skip ci]" && git push origin ${{ github.ref_name }})
