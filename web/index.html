@@ -33,6 +33,8 @@
 
         .portrait-mode #render-output { aspect-ratio: 3 / 4; }
         .landscape-mode #render-output { aspect-ratio: 3 / 2; max-width: 1100px; }
+
+        .vertical-text { writing-mode: vertical-rl; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans">
@@ -46,7 +48,7 @@
                     <p class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold">Standardized Interactive Media & Learning Engine</p>
                 </div>
                 <div id="wasm-status" class="flex items-center bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
-                    <div id="status-dot" class="w-2.5 h-2.5 bg-slate-300 rounded-full mr-3"></div>
+                    <div id="status-dot" class="w-2.5 h-2.5 bg-slate-300 rounded-full mr-3 transition-colors duration-500"></div>
                     <span id="status-text" class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Engine Initializing...</span>
                 </div>
             </div>
@@ -86,56 +88,80 @@
             </section>
 
             <aside class="flex flex-col items-center py-6 gap-6 bg-black/20 border-l border-white/5">
-                <div class="mt-auto text-[10px] font-mono text-slate-600 vertical-text rotate-180" style="writing-mode: vertical-rl">SIMLE CORE v0.1</div>
+                <div class="mt-auto text-[10px] font-mono text-slate-600 vertical-text rotate-180">SIMLE CORE v0.1</div>
             </aside>
         </div>
     </div>
 
     <script type="module">
-        import init, { SimleEngine } from './wasm/simle_engine_core.js';
-
         let engine = null;
         let projectPaths = null;
         let libraryData = null;
         let currentPage = 0;
+        let SimleEngineClass = null;
 
         async function boot() {
             try {
-                // 1. Initialize WASM
-                await init('./wasm/simle_engine_core_bg.wasm');
-                document.getElementById('status-dot').className = 'w-2.5 h-2.5 bg-emerald-500 rounded-full mr-3 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
-                document.getElementById('status-text').innerText = 'Engine Online';
-                document.getElementById('status-text').classList.replace('text-slate-400', 'text-emerald-600');
+                // 1. Detect environment
+                const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-                // 2. Load Infrastructure
+                // 2. Resolve the WASM binary path relative to this file (web/index.html)
+                // Local dev: ../wasm/ | Production: ./wasm/
+                const wasmDir = isLocal ? "../wasm" : "./wasm";
+                const glueScriptPath = `${wasmDir}/simle_engine_core.js`;
+
+                console.log(`Checking for Engine in: ${wasmDir}`);
+
+                // 3. Import and Init
+                const wasmModule = await import(glueScriptPath);
+                const init = wasmModule.default;
+                SimleEngineClass = wasmModule.SimleEngine;
+
+                // Passing no arguments to init() uses the default .wasm name in the same folder
+                await init();
+
+                // UI Success Update
+                const dot = document.getElementById('status-dot');
+                const text = document.getElementById('status-text');
+                dot.className = 'w-2.5 h-2.5 bg-emerald-500 rounded-full mr-3 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+                text.innerText = 'Engine Online';
+                text.classList.replace('text-slate-400', 'text-emerald-600');
+
+                // 4. Load Metadata (Relative to web/ folder)
                 const [pRes, lRes] = await Promise.all([
                     fetch('./paths.json'),
                     fetch('./library.json')
                 ]);
+
                 projectPaths = await pRes.json();
                 libraryData = await lRes.json();
 
                 renderLibrary();
             } catch (e) {
-                console.error("Boot failure:", e);
-                document.getElementById('status-text').innerText = "Engine Error";
+                console.error("SIMLE Boot failure:", e);
+                const text = document.getElementById('status-text');
+                const dot = document.getElementById('status-dot');
+                text.innerText = "Engine Error";
+                dot.className = 'w-2.5 h-2.5 bg-red-500 rounded-full mr-3';
             }
         }
 
         function renderLibrary() {
             const grid = document.getElementById('library-grid');
+            if (!libraryData) return;
+
             grid.innerHTML = libraryData.map(book => `
                 <article class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200 flex flex-col h-full">
-                    <div class="aspect-[16/9] relative overflow-hidden" style="background-color: ${book.cover_color}">
+                    <div class="aspect-[16/9] relative overflow-hidden" style="background-color: ${book.cover_color || '#1e293b'}">
                         <div class="book-gloss absolute inset-0"></div>
                         <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-white">
-                            <span class="text-4xl mb-2">${book.icon}</span>
+                            <span class="text-4xl mb-2">${book.icon || '📖'}</span>
                             <h3 class="font-black text-sm tracking-widest uppercase">${book.title}</h3>
                         </div>
                     </div>
                     <div class="p-8 flex flex-col flex-grow">
                         <h2 class="text-xl font-bold text-slate-900 mb-2">${book.title}</h2>
-                        <p class="text-slate-500 text-sm mb-6 line-clamp-3">${book.description}</p>
+                        <p class="text-slate-500 text-sm mb-6 line-clamp-3">${book.description || 'No description available.'}</p>
                         <button onclick="openBook('${book.id}')" class="mt-auto w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors uppercase tracking-widest text-[10px]">Read Book</button>
                     </div>
                 </article>
@@ -144,22 +170,29 @@
 
         window.openBook = async (bookId) => {
             const bookMeta = libraryData.find(b => b.id === bookId);
-            const isGitHub = window.location.hostname.includes('github.io');
-            const base = isGitHub ? projectPaths.web_paths.server_books_base : projectPaths.web_paths.local_books_base;
+            const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+            // Resolve base based on environment
+            const base = isLocal ? projectPaths.web_paths.local_books_base : projectPaths.web_paths.server_books_base;
 
             try {
-                // Fetch the specific book's technical config
-                const configRes = await fetch(`${base}/${bookMeta.path}/book.json`);
-                const bookConfig = await configRes.json();
+                // book.toml and meta.toml should be fetched as strings for the WASM constructor
+                const bookTomlUrl = `${base}/${bookMeta.path}/book.toml`.replace(/\/+/g, '/');
+                const metaTomlUrl = `${base}/${bookMeta.path}/meta.toml`.replace(/\/+/g, '/');
 
-                // Initialize the Engine instance
-                engine = new SimleEngine(
-                    JSON.stringify(bookConfig),
-                    JSON.stringify(bookMeta),
-                    JSON.stringify(projectPaths)
+                const [bookToml, metaToml] = await Promise.all([
+                    fetch(bookTomlUrl).then(r => r.text()),
+                    fetch(metaTomlUrl).then(r => r.text())
+                ]);
+
+                // Initialize Engine with strings and is_local boolean
+                engine = new SimleEngineClass(
+                    bookToml,
+                    metaToml,
+                    JSON.stringify(projectPaths),
+                    isLocal
                 );
 
-                // Setup UI
                 document.getElementById('simle-reader-overlay').style.display = 'block';
                 document.getElementById('reader-title').innerText = engine.get_title();
                 document.body.style.overflow = 'hidden';
@@ -168,15 +201,16 @@
                 renderPage();
                 renderToC();
             } catch (e) {
-                alert("Failed to load book: " + e.message);
+                console.error("Book Load Error:", e);
+                alert("Failed to load book content. Check console for path errors.");
             }
         };
 
         function renderPage() {
+            if (!engine) return;
             const page = engine.get_page(currentPage);
             const output = document.getElementById('render-output');
 
-            // Basic JSON visualization of the WASM output
             output.innerHTML = `
                 <div class="p-4">
                     <span class="text-[10px] uppercase font-bold text-blue-600 tracking-widest">${page.type}</span>
@@ -196,7 +230,10 @@
             list.innerHTML = html;
         }
 
-        window.goToPage = (i) => { currentPage = i; renderPage(); };
+        window.goToPage = (i) => {
+            currentPage = i;
+            renderPage();
+        };
 
         document.getElementById('close-reader').onclick = () => {
             document.getElementById('simle-reader-overlay').style.display = 'none';

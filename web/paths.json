@@ -1,5 +1,11 @@
 {
-  "books_dir": "../books",
+  "books_dir": "books",
+  "output_dir": "web",
   "output_file": "library.json",
-  "web_dir": "."
+  "web_paths": {
+    "local_books_base": "../books",
+    "server_books_base": "./books",
+    "local_shared_base": "../shared-assets",
+    "server_shared_base": "./shared-assets"
+  }
 }

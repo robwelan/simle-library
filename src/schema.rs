@@ -54,12 +54,18 @@ pub struct MetaConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WebPaths {
+    pub local_books_base: String,
     pub server_books_base: String,
+    pub local_shared_base: String,
+    pub server_shared_base: String,
 }
 
 /// System-level path resolution parsed from paths.json
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProjectPaths {
+    pub books_dir: String,
+    pub output_dir: String,
+    pub output_file: String,
     pub web_paths: WebPaths,
 }
 

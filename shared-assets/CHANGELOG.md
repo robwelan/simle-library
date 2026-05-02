@@ -3,6 +3,7 @@
 This file tracks the evolution of the SIMLE shared assets. Until version 0.1.0,
 this project is considered to be in a **Pre-Alpha / Draft** state.
 
+
 ## **[0.0.13-dev] - 2026-05-02**
 
 ### **Added**
@@ -23,6 +24,7 @@ this project is considered to be in a **Pre-Alpha / Draft** state.
 
 ### **Changed**
 
+* **Moved everything around**: good luck following it.
 * **Environment-Aware Pathing**: Implemented "Smart Path" logic in the Library
   UI to automatically toggle between local sibling paths and production
   distribution paths based on hostname detection.

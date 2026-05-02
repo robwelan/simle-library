@@ -7,89 +7,74 @@ designed for multilingual education.
 
 [**Launch Live Demo & Library**](https://robwelan.github.io/simle-library/)
 
-## (Opens in new tab)
-
 ## **📈 Project Evolution & Readiness**
 
 The SIMLE engine is currently in **Pre-Alpha**.
 
 👉
-
-[**View the Shared Assets Changelog**](http://docs.google.com/shared-assets/CHANGELOG.md)
+[**View the Shared Assets Changelog**](http://docs.google.com/shared_assets/CHANGELOG.md)
 
 ## **🚀 Local Development**
 
-To test the library locally and avoid browser security restrictions (CORS) when
-loading .json or .toml files, use a local HTTP server.
+To test the library locally, use the built-in development script:
 
-**Run using npx:**
-
-```bash
-npx http-server . \-p 8000 \--cors \-c-1
-```
-
-* **\-p 8000**: Runs the server on port 8000\.
-* **\--cors**: Enables Cross-Origin Resource Sharing.
-* **\-c-1**: Disables caching so you see your changes immediately.
-
-Access your local library at: [http://localhost:8000](http://localhost:8000)
-
-## **🛠 Developer Workflow (Important)**
-
-### **0\. Building the web\library.json
+**Run using npm:**
 
 ```bash
-python3 build_library.py
+npm run dev
 ```
 
-NOTE: you may need to change python3 depending on your environment
+Access your local library at: [http://localhost:3000](http://localhost:3000)
 
-### **1\. Compiling the Engine**
+## **🛠 Developer Workflow**
 
-If you modify the Rust logic in src/lib.rs, you must rebuild the WebAssembly
-binaries so the browser can see the changes.
+### **1\. Building the Library Manifest**
+
+If you add or remove files in the books/ directory, regenerate the JSON
+registry:
+
+python build\_library.py
+
+### **2\. Compiling the Engine (Rust/WASM)**
+
+If you modify the Rust logic in src/, you must rebuild the WebAssembly binaries:
 
 ```bash
-# 1. Compile the Rust code to WASM
-wasm-pack build --target web
-
-# 2. Sync the output to your docs folder
-# (Adjust paths if your structure differs slightly)
-cp pkg/simle_engine_core_bg.wasm docs/wasm/
-cp pkg/simle_engine_core.js docs/wasm/
+npm run build:wasm
 ```
 
-### **2\. Note on Syncing**
+### **3\. Deployment**
 
-This repository uses **GitHub Actions** to automatically compile the Rust/Wasm
-engine on deployment.
-
-When you push code to main, the GitHub Action may compile the engine and commit
-the new .wasm binaries back to the repository. This will cause your local branch
-to be out of sync.
-
-**Always pull before pushing:**
+Deployment is handled by the gh-pages utility. This command bundles the web/
+folder along with wasm, books, and shared\_assets.
 
 ```bash
-git pull --rebase origin main
+npm run deploy
 ```
 
-### **3\. gh-pages new**
+## **🤖 Automated Workflow (CI/CD)**
+
+This repository uses **GitHub Actions** to automatically manage the engine. When
+you push to main:
+
+1. The **Library Manifest** is updated via Python.
+2. The **Rust/WASM** engine is compiled.
+3. The **package.json** version is patched.
+4. The site is deployed to the gh-pages branch.
+
+**Always pull before working** to stay in sync with automated version bumps:
 
 ```bash
-npx gh-pages -d . -m "Publish SIMLE Book"
+git pull \--rebase origin main
 ```
-
-## **🚀 Supporting the Project**
-
-[**Help fund the SIMLE Project on Patreon**](https://patreon.com/BeAReactDev)
 
 ## **📖 How to Get the Books**
 
 ### **1\. The "Full Library" Experience (Git)**
 
 ```bash
-git clone \[https://github.com/robwelan/simle-library.git\](https://github.com/robwelan/simle-library.git)
+git clone
+\[https://github.com/robwelan/simle-library.git\](https://github.com/robwelan/simle-library.git)
 cd simle-library/books
 ```
 
@@ -101,19 +86,12 @@ Download individual archives from our **Releases Page**.
 
 * **18px Minimum Typography:** Cognitive accessibility floor.
 * **Shared Assets:** Versioned CSS, Fonts, and Wasm logic.
-* **Direct Shadowing:** Filename-based parallel synchronization.
+* **Web Directory:** Primary frontend entry point (web/index.html).
+* **Rust Core:** Performance-critical logic compiled to WASM.
 
-## **📜 Key Documentation**
+## **🚀 Supporting the Project**
 
-1. [Project Standard](http://docs.google.com/core-docs/simle-technical-standard/content/en-us/project_standard.md)
-2. [File Structure](http://docs.google.com/core-docs/simle-technical-standard/content/en-us/file_structure.md)
-3. [Locale Standards](http://docs.google.com/core-docs/simle-technical-standard/content/en-us/locales_standard.md)
-
-## **🤝 Contributing**
-
-1. Fork the repo.
-2. Create a feature branch.
-3. Submit a Pull Request.
+[**Help fund the SIMLE Project on Patreon**](https://patreon.com/BeAReactDev)
 
 ## **⚖️ License**
 
