@@ -1,66 +1,89 @@
 /* @ts-self-types="./simle_engine_core.d.ts" */
 
-/**
- * Logic for "Direct Shadowing"
- * In the next step, this will take the scroll position of the primary language
- * and calculate exactly where the "shadow" (secondary) language should be.
- * @param {number} scroll_top
- * @param {number} primary_height
- * @param {number} shadow_height
- * @returns {number}
- */
-export function calculate_shadow_offset(scroll_top, primary_height, shadow_height) {
-    const ret = wasm.calculate_shadow_offset(scroll_top, primary_height, shadow_height);
-    return ret;
-}
-
-/**
- * @returns {any}
- */
-export function get_engine_info() {
-    const ret = wasm.get_engine_info();
-    return ret;
-}
-
-/**
- * The Next Step: Parse the actual book.toml content
- * This validates that the provided JSON matches our Standard
- * @param {string} json_input
- * @returns {any}
- */
-export function parse_and_validate_manifest(json_input) {
-    const ptr0 = passStringToWasm0(json_input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.parse_and_validate_manifest(ptr0, len0);
-    return ret;
-}
-
-/**
- * Health Check: Verifies the engine is loaded and responsive
- * @returns {string}
- */
-export function ping() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.ping();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+export class SimleEngine {
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        SimleEngineFinalization.unregister(this);
+        return ptr;
+    }
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_simleengine_free(ptr, 0);
+    }
+    /**
+     * Returns the primary locale as defined in the global manifest.
+     * @returns {string}
+     */
+    get_default_locale() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.simleengine_get_default_locale(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Fetches a specific page by index.
+     * 0: Cover, 1: Metadata, 2: Table of Contents, 3+: Content Sequence.
+     * @param {number} index
+     * @returns {any}
+     */
+    get_page(index) {
+        const ret = wasm.simleengine_get_page(this.__wbg_ptr, index);
+        return ret;
+    }
+    /**
+     * @returns {string}
+     */
+    get_title() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.simleengine_get_title(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * The constructor takes JSON strings from the JS host.
+     * Validates the structure against the SIMLE Schema (ProjectInfo & StructureConfig).
+     * @param {string} config_json
+     * @param {string} meta_json
+     */
+    constructor(config_json, meta_json) {
+        const ptr0 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(meta_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.simleengine_new(ptr0, len0, ptr1, len1);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        this.__wbg_ptr = ret[0] >>> 0;
+        SimleEngineFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Total pages = Static pages (3) + Length of the Master Content Sequence.
+     * @returns {number}
+     */
+    total_pages() {
+        const ret = wasm.simleengine_total_pages(this.__wbg_ptr);
+        return ret >>> 0;
     }
 }
+if (Symbol.dispose) SimleEngine.prototype[Symbol.dispose] = SimleEngine.prototype.free;
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
-        __wbg___wbindgen_debug_string_ab4b34d23d6778bd: function(arg0, arg1) {
-            const ret = debugString(arg1);
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        },
         __wbg___wbindgen_throw_6b64449b9b9ed33c: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         },
@@ -78,7 +101,12 @@ function __wbg_get_imports() {
         __wbg_set_6be42768c690e380: function(arg0, arg1, arg2) {
             arg0[arg1] = arg2;
         },
-        __wbindgen_cast_0000000000000001: function(arg0, arg1) {
+        __wbindgen_cast_0000000000000001: function(arg0) {
+            // Cast intrinsic for `F64 -> Externref`.
+            const ret = arg0;
+            return ret;
+        },
+        __wbindgen_cast_0000000000000002: function(arg0, arg1) {
             // Cast intrinsic for `Ref(String) -> Externref`.
             const ret = getStringFromWasm0(arg0, arg1);
             return ret;
@@ -99,78 +127,9 @@ function __wbg_get_imports() {
     };
 }
 
-function debugString(val) {
-    // primitive types
-    const type = typeof val;
-    if (type == 'number' || type == 'boolean' || val == null) {
-        return  `${val}`;
-    }
-    if (type == 'string') {
-        return `"${val}"`;
-    }
-    if (type == 'symbol') {
-        const description = val.description;
-        if (description == null) {
-            return 'Symbol';
-        } else {
-            return `Symbol(${description})`;
-        }
-    }
-    if (type == 'function') {
-        const name = val.name;
-        if (typeof name == 'string' && name.length > 0) {
-            return `Function(${name})`;
-        } else {
-            return 'Function';
-        }
-    }
-    // objects
-    if (Array.isArray(val)) {
-        const length = val.length;
-        let debug = '[';
-        if (length > 0) {
-            debug += debugString(val[0]);
-        }
-        for(let i = 1; i < length; i++) {
-            debug += ', ' + debugString(val[i]);
-        }
-        debug += ']';
-        return debug;
-    }
-    // Test for built-in
-    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
-    let className;
-    if (builtInMatches && builtInMatches.length > 1) {
-        className = builtInMatches[1];
-    } else {
-        // Failed to match the standard '[object ClassName]'
-        return toString.call(val);
-    }
-    if (className == 'Object') {
-        // we're a user defined class or Object
-        // JSON.stringify avoids problems with cycles, and is generally much
-        // easier than looping through ownProperties of `val`.
-        try {
-            return 'Object(' + JSON.stringify(val) + ')';
-        } catch (_) {
-            return 'Object';
-        }
-    }
-    // errors
-    if (val instanceof Error) {
-        return `${val.name}: ${val.message}\n${val.stack}`;
-    }
-    // TODO we could test for more things here, like `Set`s and `Map`s.
-    return className;
-}
-
-let cachedDataViewMemory0 = null;
-function getDataViewMemory0() {
-    if (cachedDataViewMemory0 === null || cachedDataViewMemory0.buffer.detached === true || (cachedDataViewMemory0.buffer.detached === undefined && cachedDataViewMemory0.buffer !== wasm.memory.buffer)) {
-        cachedDataViewMemory0 = new DataView(wasm.memory.buffer);
-    }
-    return cachedDataViewMemory0;
-}
+const SimleEngineFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_simleengine_free(ptr >>> 0, 1));
 
 function getStringFromWasm0(ptr, len) {
     ptr = ptr >>> 0;
@@ -222,6 +181,12 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_externrefs.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+
 let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 cachedTextDecoder.decode();
 const MAX_SAFARI_DECODE_BYTES = 2146435072;
@@ -255,7 +220,6 @@ let wasmModule, wasm;
 function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     wasmModule = module;
-    cachedDataViewMemory0 = null;
     cachedUint8ArrayMemory0 = null;
     wasm.__wbindgen_start();
     return wasm;
