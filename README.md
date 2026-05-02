@@ -6,13 +6,15 @@ designed for multilingual education.
 ## **🌐 Live Demo & Library**
 
 [**Launch Live Demo & Library**](https://robwelan.github.io/simle-library/)
-*(Opens in new tab)*
+
+## (Opens in new tab)
 
 ## **📈 Project Evolution & Readiness**
 
 The SIMLE engine is currently in **Pre-Alpha**.
 
 👉
+
 [**View the Shared Assets Changelog**](http://docs.google.com/shared-assets/CHANGELOG.md)
 
 ## **🚀 Local Development**
@@ -23,21 +25,30 @@ loading .json or .toml files, use a local HTTP server.
 **Run using npx:**
 
 ```bash
-npx http-server . -p 8000 --cors -c-1
+npx http-server . \-p 8000 \--cors \-c-1
 ```
 
 * **\-p 8000**: Runs the server on port 8000\.
 * **\--cors**: Enables Cross-Origin Resource Sharing.
 * **\-c-1**: Disables caching so you see your changes immediately.
 
-Access your local library at: <http://localhost:8000>
+Access your local library at: [http://localhost:8000](http://localhost:8000)
 
 ## **🛠 Developer Workflow (Important)**
 
-This repository uses **GitHub Actions** to automatically compile the Rust/Wasm
-engine.
+### **1\. Compiling the Engine**
 
-**Note on Syncing:**
+If you modify the Rust logic in src/lib.rs, you must rebuild the WebAssembly
+binaries so the browser can see the changes.
+
+```bash
+wasm-pack build \--target web
+```
+
+### **2\. Note on Syncing**
+
+This repository uses **GitHub Actions** to automatically compile the Rust/Wasm
+engine on deployment.
 
 When you push code to main, the GitHub Action may compile the engine and commit
 the new .wasm binaries back to the repository. This will cause your local branch
@@ -46,7 +57,7 @@ to be out of sync.
 **Always pull before pushing:**
 
 ```bash
-git pull --rebase origin main
+git pull \--rebase origin main
 ```
 
 ## **🚀 Supporting the Project**
@@ -57,9 +68,10 @@ git pull --rebase origin main
 
 ### **1\. The "Full Library" Experience (Git)**
 
-git clone
-\[https://github.com/robwelan/simle-library.git\](https://github.com/robwelan/simle-library.git)
+```bash
+git clone \[https://github.com/robwelan/simle-library.git\](https://github.com/robwelan/simle-library.git)
 cd simle-library/books
+```
 
 ### **2\. Standalone Books (.simle)**
 
@@ -87,5 +99,4 @@ Download individual archives from our **Releases Page**.
 
 MIT License \- see [LICENSE](http://docs.google.com/LICENSE).
 
-*Standard Version: 1.2.0*
 *Primary Maintainer: [robwelan](https://github.com/robwelan)*

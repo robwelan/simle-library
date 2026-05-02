@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simle Engine Debugger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Simle Engine Diagnostic</h1>
+        <div id="status" class="bg-yellow-900 p-4 rounded mb-4">Status: Initializing...</div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <button id="prev" class="bg-blue-600 p-2 rounded hover:bg-blue-500">Previous</button>
+            <button id="next" class="bg-blue-600 p-2 rounded hover:bg-blue-500">Next</button>
+        </div>
+
+        <div id="viewer" class="bg-white text-black p-8 rounded shadow-xl min-h-[400px]">
+            <pre id="content" class="whitespace-pre-wrap font-mono text-sm text-gray-800">No content loaded.</pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import init, { SimleEngine } from './wasm/simle_engine_core.js';
+
+        // 1. Matches book.toml specification
+        const mockConfig = {
+            project: {
+                id: "physics-101",
+                isbn: "978-3-16-148410-0",
+                version: "2.1.0",
+                engine_version: "0.0.1"
+            },
+            structure: {
+                locales: ["en-us", "zh-hans"],
+                content: ["project_standard.md", "file_structure.md"],
+                manifest: ["project_standard.md", "file_structure.md"]
+            },
+            cover: {
+                cover_background_landscape: "assets/bg.webp",
+                accent_color: "#2563eb"
+            }
+        };
+
+        // 2. Matches meta.toml localized identity
+        const mockMeta = {
+            locale_name: "English (US)",
+            title: "The Physics Guide",
+            author: "Rob Welan",
+            description: "Testing SIMLE parallel viewing shadowing.",
+            publisher: "SIMLE Open Press",
+            keywords: ["physics", "education", "wasm"],
+            isbn: "978-3-16-148410-0"
+        };
+
+        let engine;
+        let currentPage = 0;
+
+        async function run() {
+            const status = document.getElementById('status');
+            try {
+                await init('./wasm/simle_engine_core_bg.wasm');
+
+                engine = new SimleEngine(
+                    JSON.stringify(mockConfig),
+                    JSON.stringify(mockMeta)
+                );
+
+                status.className = "bg-green-900 p-4 rounded mb-4";
+                status.innerText = `Engine Loaded: ${engine.get_title()} (${engine.total_pages()} pages)`;
+                updatePage();
+            } catch (e) {
+                status.className = "bg-red-900 p-4 rounded mb-4";
+                status.innerText = "Error: " + e;
+                console.error(e);
+            }
+        }
+
+        function updatePage() {
+            if (!engine) return;
+            const data = engine.get_page(currentPage);
+            document.getElementById('content').innerText = JSON.stringify(data, null, 2);
+        }
+
+        document.getElementById('next').onclick = () => {
+            currentPage = Math.min(engine.total_pages() - 1, currentPage + 1);
+            updatePage();
+        };
+        document.getElementById('prev').onclick = () => {
+            currentPage = Math.max(0, currentPage - 1);
+            updatePage();
+        };
+
+        run();
+    </script>
+</body>
+</html>

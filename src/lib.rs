@@ -1,67 +1,91 @@
 use wasm_bindgen::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-// This represents the "Capability Map" for subscribers
-const ENGINE_VERSION: &str = "0.0.1-dev";
+mod schema;
+mod renderers;
 
-#[derive(Serialize, Deserialize)]
-pub struct EngineInfo {
-    pub version: String,
-    pub status: String,
-    pub capabilities: Vec<String>,
-}
+use crate::schema::{BookConfig, MetaConfig};
+use crate::renderers::{CoverPage, MetaPage, ToCPage};
 
-/// Represents the global blueprint from book.toml
-#[derive(Serialize, Deserialize)]
-pub struct BookManifest {
-    pub project_id: String,
-    pub version: String,
-    pub locales: Vec<String>,
-    pub manifest: Vec<String>,
+/// Defines the structure of pages sent to the JavaScript frontend.
+/// Follows the SIMLE rendering standard for predictable JSON output.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum VirtualPage {
+    Cover(CoverPage),
+    BookMeta(MetaPage),
+    ToC(ToCPage),
+    Chapter {
+        title: String,
+        content: String,
+        source_file: String
+    },
+    Empty,
 }
 
 #[wasm_bindgen]
-pub fn get_engine_info() -> JsValue {
-    let info = EngineInfo {
-        version: ENGINE_VERSION.to_string(),
-        status: "Pre-Alpha / Architectural Draft".to_string(),
-        capabilities: vec![
-            "directory_structure_v2".to_string(),
-            "evergreen_assets_logic".to_string(),
-            "parallel_sync_v1".to_string(),
-        ],
-    };
-    serde_wasm_bindgen::to_value(&info).unwrap()
+pub struct SimleEngine {
+    config: BookConfig,
+    meta: MetaConfig,
 }
 
-/// The Next Step: Parse the actual book.toml content
-/// This validates that the provided JSON matches our Standard
 #[wasm_bindgen]
-pub fn parse_and_validate_manifest(json_input: &str) -> JsValue {
-    let manifest: Result<BookManifest, _> = serde_json::from_str(json_input);
+impl SimleEngine {
+    /// The constructor takes JSON strings from the JS host.
+    /// Validates the structure against the SIMLE Schema (ProjectInfo & StructureConfig).
+    #[wasm_bindgen(constructor)]
+    pub fn new(config_json: &str, meta_json: &str) -> Result<SimleEngine, JsValue> {
+        let config: BookConfig = serde_json::from_str(config_json)
+            .map_err(|e| JsValue::from_str(&format!("WASM: Config Parse Error: {}", e)))?;
 
-    match manifest {
-        Ok(m) => serde_wasm_bindgen::to_value(&m).unwrap(),
-        Err(_) => JsValue::NULL,
+        let meta: MetaConfig = serde_json::from_str(meta_json)
+            .map_err(|e| JsValue::from_str(&format!("WASM: Meta Parse Error: {}", e)))?;
+
+        Ok(SimleEngine { config, meta })
     }
-}
 
-/// Logic for "Direct Shadowing"
-/// In the next step, this will take the scroll position of the primary language
-/// and calculate exactly where the "shadow" (secondary) language should be.
-#[wasm_bindgen]
-pub fn calculate_shadow_offset(scroll_top: f64, primary_height: f64, shadow_height: f64) -> f64 {
-    if primary_height == 0.0 { return 0.0; }
+    /// Fetches a specific page by index.
+    /// 0: Cover, 1: Metadata, 2: Table of Contents, 3+: Content Sequence.
+    pub fn get_page(&self, index: u32) -> JsValue {
+        let page = match index {
+            0 => VirtualPage::Cover(renderers::build_cover(&self.config, &self.meta)),
+            1 => VirtualPage::BookMeta(renderers::build_meta(&self.config, &self.meta)),
+            2 => VirtualPage::ToC(renderers::build_toc(&self.config, &self.meta)),
+            _ => {
+                // Adjust index for static offset (Cover, Meta, ToC)
+                let content_idx = index as i32 - 3;
 
-    // Calculate the ratio: How far are we through the first book?
-    let ratio = scroll_top / primary_height;
+                // Validate against the Master Sequence defined in book.toml
+                if content_idx >= 0 && content_idx < self.config.structure.content.len() as i32 {
+                    let filename = &self.config.structure.content[content_idx as usize];
 
-    // Apply that same percentage to the second book's height
-    ratio * shadow_height
-}
+                    VirtualPage::Chapter {
+                        title: format!("Chapter {}", content_idx + 1),
+                        content: format!("Placeholder content for {}", filename),
+                        source_file: filename.clone(),
+                    }
+                } else {
+                    VirtualPage::Empty
+                }
+            }
+        };
 
-/// Health Check: Verifies the engine is loaded and responsive
-#[wasm_bindgen]
-pub fn ping() -> String {
-    format!("SIMLE Engine {} is active", ENGINE_VERSION)
+        serde_wasm_bindgen::to_value(&page).unwrap_or(JsValue::NULL)
+    }
+
+    /// Total pages = Static pages (3) + Length of the Master Content Sequence.
+    pub fn total_pages(&self) -> u32 {
+        3 + self.config.structure.content.len() as u32
+    }
+
+    pub fn get_title(&self) -> String {
+        self.meta.title.clone()
+    }
+
+    /// Returns the primary locale as defined in the global manifest.
+    pub fn get_default_locale(&self) -> String {
+        self.config.structure.locales.first()
+            .cloned()
+            .unwrap_or_else(|| "en-us".to_string())
+    }
 }
