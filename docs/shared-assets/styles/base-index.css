@@ -1,0 +1,8 @@
+/* shared-assets/styles/base-index.css */
+
+@import url("base-reset.css") layer(reset);
+@import url("base-typography.css") layer(typography);
+@import url("base-layout.css") layer(base);
+@import url("base-layout-cover.css") layer(cover);
+@import url("base-ruby.css") layer(ruby);
+@import url("base-theme.css") layer(theme);

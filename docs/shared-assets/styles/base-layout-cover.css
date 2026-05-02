@@ -1,0 +1,69 @@
+/* shared-assets/styles/base-layout-cover.css */
+
+@layer cover {
+  :root {
+    /* Fallbacks in case book.toml is missing values */
+    --bg-landscape: url('../../assets/images/bg-wide.webp');
+    --bg-portrait: url('../../assets/images/bg-tall.webp');
+  }
+
+  .simle-cover-container {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    /* Defines the 3x3 grid */
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 10vh 10vw;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .wordmark {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    /* Soft shadow to ensure legibility over any background art */
+    filter: drop-shadow(0 0.5rem 1rem rgba(0,0,0,0.5));
+  }
+
+  /* --- LAYOUTS --- */
+
+  /* layout-classic: Title in the middle, Author at the very bottom */
+  .layout-classic .cover-title-zone {
+    grid-area: 2 / 1 / 3 / 4;
+    justify-self: center;
+    align-self: center;
+  }
+  .layout-classic .cover-author-zone {
+    grid-area: 3 / 1 / 4 / 4;
+    justify-self: center;
+    align-self: end;
+  }
+
+  /* layout-modern: Branding stacked in the top-left */
+  .layout-modern .cover-title-zone {
+    grid-area: 1 / 1 / 2 / 3;
+    justify-self: start;
+    align-self: start;
+  }
+  .layout-modern .cover-author-zone {
+    grid-area: 1 / 1 / 2 / 3;
+    justify-self: start;
+    align-self: start;
+    margin-top: 4rem;
+  }
+
+  /* --- BACKGROUND ART --- */
+  .book-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-color: #000;
+  }
+
+  @media (orientation: landscape) { .book-background { background-image: var(--bg-landscape); } }
+  @media (orientation: portrait) { .book-background { background-image: var(--bg-portrait); } }
+}

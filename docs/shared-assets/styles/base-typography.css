@@ -1,0 +1,148 @@
+@layer typography {
+  /* --- 1. SANS: IBM PLEX SANS (Main UI, Pinyin & Vietnamese) --- */
+  @font-face {
+    font-family: 'BaseSans';
+    src: url('../fonts/ibm-plex-sans-v23-latin-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseSans';
+    src: url('../fonts/ibm-plex-sans-v23-latin-ext-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseSans';
+    src: url('../fonts/ibm-plex-sans-v23-vietnamese-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* --- 2. SERIF: STIX TWO TEXT (Prose & LaTeX Text) --- */
+  @font-face {
+    font-family: 'BaseSerif';
+    src: url('../fonts/STIXTwoText[wght].woff2') format('woff2-variations');
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseSerif';
+    src: url('../fonts/STIXTwoText-Italic[wght].woff2') format('woff2-variations');
+    font-weight: 400 700;
+    font-style: italic;
+    font-display: swap;
+  }
+
+  /* --- 3. MATH: STIX TWO MATH (Formulas & Operators) --- */
+  @font-face {
+    font-family: 'BaseMath';
+    src: url('../fonts/STIXTwoMath-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  /* --- 4. MONO: IBM PLEX MONO (Code, Phonetics & Vietnamese) --- */
+  @font-face {
+    font-family: 'BaseMono';
+    src: url('../fonts/ibm-plex-mono-v20-latin-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseMono';
+    src: url('../fonts/ibm-plex-mono-v20-latin-ext-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseMono';
+    src: url('../fonts/ibm-plex-mono-v20-vietnamese-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* --- 5. ARABIC: NOTO NASKH (Text + Symbols + Arabic Math) --- */
+  @font-face {
+    font-family: 'BaseArabic';
+    src: url('../fonts/noto-naskh-arabic-v44-arabic-regular.woff2') format('woff2'),
+         url('../fonts/noto-naskh-arabic-v44-math-regular.woff2') format('woff2'),
+         url('../fonts/noto-naskh-arabic-v44-symbols-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  /* --- 6. CJK: NOTO SANS (SC, JP, KR) --- */
+  @font-face {
+    font-family: 'BaseCJK';
+    src: url('../fonts/noto-sans-sc-v40-chinese-simplified-regular.woff2') format('woff2');
+    unicode-range: U+4E00-9FFF, U+3000-303F;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseCJK';
+    src: url('../fonts/noto-sans-jp-v56-japanese-regular.woff2') format('woff2');
+    unicode-range: U+3040-309F, U+30A0-30FF, U+FF00-FFEF;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'BaseCJK';
+    src: url('../fonts/noto-sans-kr-v39-korean-regular.woff2') format('woff2');
+    unicode-range: U+AC00-D7AF, U+1100-11FF;
+    font-display: swap;
+  }
+
+  /* --- 7. VARIABLES & STACKS --- */
+  :root {
+    /* Base Font Size:
+       Starts at 1.125rem (18px).
+       Scales smoothly as the viewport width grows.
+       Maxes out at 1.25rem (20px) on large screens.
+    */
+    --fs-base: clamp(1.125rem, 1.08rem + 0.22vw, 1.25rem);
+
+    /* Optimized Stacks */
+    --font-sans: 'BaseSans', 'BaseCJK', 'BaseArabic', system-ui, sans-serif;
+    --font-serif: 'BaseSerif', 'BaseCJK', 'BaseArabic', serif;
+    --font-mono: 'BaseMono', monospace;
+    --font-math: 'BaseMath', 'BaseArabic', serif;
+
+    --lh-base: 1.6;
+    --lh-loose: 1.9;
+  }
+
+  /* --- 8. APPLICATION --- */
+  html {
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: var(--lh-base);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* For math blocks/LaTeX containers */
+  .math, .formula, math {
+    font-family: var(--font-math);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  article, .reading-prose {
+    font-family: var(--font-serif);
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Complex Script Spacing & Vietnamese Diacritic Clearance */
+  :lang(zh), :lang(jp), :lang(kr), :lang(ar), :lang(vi), [dir="rtl"] {
+    line-height: var(--lh-loose);
+  }
+}
