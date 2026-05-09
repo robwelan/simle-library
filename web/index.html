@@ -1,156 +1,276 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIMLE Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .book-gloss { background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 100%); }
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .book-gloss {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.2) 0%,
+          rgba(255, 255, 255, 0) 50%,
+          rgba(0, 0, 0, 0.1) 100%
+        );
+      }
 
-        /* Reader UI */
-        #simle-reader-overlay { display: none; position: fixed; inset: 0; background: #0a0a0c; z-index: 100; color: white; overflow: hidden; }
-        .reader-grid { display: grid; grid-template-columns: 280px 1fr 80px; grid-template-rows: 64px 1fr; height: 100vh; width: 100vw; }
+      /* Reader UI */
+      #simle-reader-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #0a0a0c;
+        z-index: 100;
+        color: white;
+        overflow: hidden;
+      }
+      .reader-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr 80px;
+        grid-template-rows: 64px 1fr;
+        height: 100vh;
+        width: 100vw;
+      }
 
-        @media (max-width: 1024px) {
-            .reader-grid { grid-template-columns: 1fr 60px; grid-template-rows: 64px 1fr 64px; }
-            .sidebar-toc { display: none; }
+      @media (max-width: 1024px) {
+        .reader-grid {
+          grid-template-columns: 1fr 60px;
+          grid-template-rows: 64px 1fr 64px;
         }
-
-        .stage-container { display: flex; align-items: center; justify-content: center; padding: 2rem; background: radial-gradient(circle at center, #1a1a20 0%, #0a0a0c 100%); }
-
-        #render-output {
-            width: 100%;
-            max-width: 800px;
-            background: white;
-            color: black;
-            padding: 4rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            min-height: 70vh;
-            transition: all 0.5s ease;
+        .sidebar-toc {
+          display: none;
         }
+      }
 
-        .portrait-mode #render-output { aspect-ratio: 3 / 4; }
-        .landscape-mode #render-output { aspect-ratio: 3 / 2; max-width: 1100px; }
+      .stage-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: radial-gradient(circle at center, #1a1a20 0%, #0a0a0c 100%);
+      }
 
-        .vertical-text { writing-mode: vertical-rl; }
+      #render-output {
+        width: 100%;
+        max-width: 800px;
+        background: white;
+        color: black;
+        padding: 4rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        min-height: 70vh;
+        transition: all 0.5s ease;
+      }
+
+      .portrait-mode #render-output {
+        aspect-ratio: 3 / 4;
+      }
+      .landscape-mode #render-output {
+        aspect-ratio: 3 / 2;
+        max-width: 1100px;
+      }
+
+      .vertical-text {
+        writing-mode: vertical-rl;
+      }
     </style>
-</head>
-<body class="bg-slate-50 min-h-screen font-sans">
-
+  </head>
+  <body class="bg-slate-50 min-h-screen font-sans">
     <!-- Library View -->
     <div id="library-view">
-        <header class="bg-white border-b border-slate-200 py-10 mb-12">
-            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <h1 class="text-4xl font-black text-slate-900 tracking-tighter">SIMLE <span class="text-blue-600">LIBRARY</span></h1>
-                    <p class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold">Standardized Interactive Media & Learning Engine</p>
-                </div>
-                <div id="wasm-status" class="flex items-center bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
-                    <div id="status-dot" class="w-2.5 h-2.5 bg-slate-300 rounded-full mr-3 transition-colors duration-500"></div>
-                    <span id="status-text" class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Engine Initializing...</span>
-                </div>
-            </div>
-        </header>
+      <header class="bg-white border-b border-slate-200 py-10 mb-12">
+        <div
+          class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row md:items-end justify-between gap-6"
+        >
+          <div>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tighter">
+              SIMLE <span class="text-blue-600">LIBRARY</span>
+            </h1>
+            <p
+              class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold"
+            >
+              Standardized Interactive Media & Learning Engine
+            </p>
+            <p
+              class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold"
+            >
+              <a href="diagnostic-content">Diagnose Content Page</a>
+            </p>
+            <p
+              class="text-slate-500 mt-2 uppercase tracking-[0.2em] text-[10px] font-bold"
+            >
+              <a href="diagnostic-infrastructure"
+                >Diagnose Infrastructure Page</a
+              >
+            </p>
+          </div>
+          <div
+            id="wasm-status"
+            class="flex items-center bg-slate-100 px-4 py-2 rounded-full border border-slate-200"
+          >
+            <div
+              id="status-dot"
+              class="w-2.5 h-2.5 bg-slate-300 rounded-full mr-3 transition-colors duration-500"
+            ></div>
+            <span
+              id="status-text"
+              class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none"
+              >Engine Initializing...</span
+            >
+          </div>
+        </div>
+      </header>
 
-        <main class="max-w-7xl mx-auto px-6 pb-24">
-            <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                <!-- Books injected here -->
-            </div>
-        </main>
+      <main class="max-w-7xl mx-auto px-6 pb-24">
+        <div
+          id="library-grid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+        >
+          <!-- Books injected here -->
+        </div>
+      </main>
     </div>
 
     <!-- Engine Reader Overlay -->
     <div id="simle-reader-overlay">
-        <div class="reader-grid h-full">
-            <nav class="col-span-full border-b border-white/10 px-6 flex items-center justify-between bg-black/20 backdrop-blur-md">
-                <div class="flex items-center gap-4">
-                    <button id="close-reader" class="hover:bg-white/10 p-2 rounded-lg transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <h2 id="reader-title" class="font-bold text-sm uppercase tracking-widest text-slate-400 italic">Book Title</h2>
-                </div>
-                <div class="flex gap-2">
-                    <button id="toggle-spread" class="bg-blue-600 hover:bg-blue-500 px-4 py-1 rounded text-xs font-bold transition-colors">Open Book</button>
-                </div>
-            </nav>
+      <div class="reader-grid h-full">
+        <nav
+          class="col-span-full border-b border-white/10 px-6 flex items-center justify-between bg-black/20 backdrop-blur-md"
+        >
+          <div class="flex items-center gap-4">
+            <button
+              id="close-reader"
+              class="hover:bg-white/10 p-2 rounded-lg transition-colors"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+            <h2
+              id="reader-title"
+              class="font-bold text-sm uppercase tracking-widest text-slate-400 italic"
+            >
+              Book Title
+            </h2>
+          </div>
+          <div class="flex gap-2">
+            <button
+              id="toggle-spread"
+              class="bg-blue-600 hover:bg-blue-500 px-4 py-1 rounded text-xs font-bold transition-colors"
+            >
+              Open Book
+            </button>
+          </div>
+        </nav>
 
-            <aside class="sidebar-toc border-r border-white/5 bg-black/40 overflow-y-auto p-6">
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Contents</h3>
-                <ul id="toc-list" class="space-y-4"></ul>
-            </aside>
+        <aside
+          class="sidebar-toc border-r border-white/5 bg-black/40 overflow-y-auto p-6"
+        >
+          <h3
+            class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6"
+          >
+            Contents
+          </h3>
+          <ul id="toc-list" class="space-y-4"></ul>
+        </aside>
 
-            <section class="stage-container portrait-mode" id="stage">
-                <div id="render-output" class="overflow-y-auto font-serif">
-                    <!-- WASM Page Content Rendered Here -->
-                </div>
-            </section>
+        <section class="stage-container portrait-mode" id="stage">
+          <div id="render-output" class="overflow-y-auto font-serif">
+            <!-- WASM Page Content Rendered Here -->
+          </div>
+        </section>
 
-            <aside class="flex flex-col items-center py-6 gap-6 bg-black/20 border-l border-white/5">
-                <div class="mt-auto text-[10px] font-mono text-slate-600 vertical-text rotate-180">SIMLE CORE v0.1</div>
-            </aside>
-        </div>
+        <aside
+          class="flex flex-col items-center py-6 gap-6 bg-black/20 border-l border-white/5"
+        >
+          <div
+            class="mt-auto text-[10px] font-mono text-slate-600 vertical-text rotate-180"
+          >
+            SIMLE CORE v0.1
+          </div>
+        </aside>
+      </div>
     </div>
 
     <script type="module">
-        let engine = null;
-        let projectPaths = null;
-        let libraryData = null;
-        let currentPage = 0;
-        let SimleEngineClass = null;
+      let engine = null;
+      let projectPaths = null;
+      let libraryData = null;
+      let currentPage = 0;
+      let SimleEngineClass = null;
 
-        async function boot() {
-            try {
-                // 1. Detect environment
-                const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      async function boot() {
+        try {
+          // 1. Detect environment
+          const isLocal =
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
 
-                // 2. Resolve the WASM binary path relative to this file (web/index.html)
-                // Local dev: ../wasm/ | Production: ./wasm/
-                const wasmDir = isLocal ? "../wasm" : "./wasm";
-                const glueScriptPath = `${wasmDir}/simle_engine_core.js`;
+          // 2. Resolve the WASM binary path relative to this file (web/index.html)
+          // Local dev: ../wasm/ | Production: ./wasm/
+          const wasmDir = isLocal ? '../wasm' : './wasm';
+          const glueScriptPath = `${wasmDir}/simle_engine_core.js`;
 
-                console.log(`Checking for Engine in: ${wasmDir}`);
+          console.log(`Checking for Engine in: ${wasmDir}`);
 
-                // 3. Import and Init
-                const wasmModule = await import(glueScriptPath);
-                const init = wasmModule.default;
-                SimleEngineClass = wasmModule.SimleEngine;
+          // 3. Import and Init
+          const wasmModule = await import(glueScriptPath);
+          const init = wasmModule.default;
+          SimleEngineClass = wasmModule.SimleEngine;
 
-                // Passing no arguments to init() uses the default .wasm name in the same folder
-                await init();
+          // Passing no arguments to init() uses the default .wasm name in the same folder
+          await init();
 
-                // UI Success Update
-                const dot = document.getElementById('status-dot');
-                const text = document.getElementById('status-text');
-                dot.className = 'w-2.5 h-2.5 bg-emerald-500 rounded-full mr-3 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
-                text.innerText = 'Engine Online';
-                text.classList.replace('text-slate-400', 'text-emerald-600');
+          // UI Success Update
+          const dot = document.getElementById('status-dot');
+          const text = document.getElementById('status-text');
+          dot.className =
+            'w-2.5 h-2.5 bg-emerald-500 rounded-full mr-3 shadow-[0_0_8px_rgba(16,185,129,0.6)]';
+          text.innerText = 'Engine Online';
+          text.classList.replace('text-slate-400', 'text-emerald-600');
 
-                // 4. Load Metadata (Relative to web/ folder)
-                const [pRes, lRes] = await Promise.all([
-                    fetch('./paths.json'),
-                    fetch('./library.json')
-                ]);
+          // 4. Load Metadata (Relative to web/ folder)
+          const [pRes, lRes] = await Promise.all([
+            fetch('./paths.json'),
+            fetch('./library.json'),
+          ]);
 
-                projectPaths = await pRes.json();
-                libraryData = await lRes.json();
+          projectPaths = await pRes.json();
+          libraryData = await lRes.json();
 
-                renderLibrary();
-            } catch (e) {
-                console.error("SIMLE Boot failure:", e);
-                const text = document.getElementById('status-text');
-                const dot = document.getElementById('status-dot');
-                text.innerText = "Engine Error";
-                dot.className = 'w-2.5 h-2.5 bg-red-500 rounded-full mr-3';
-            }
+          renderLibrary();
+        } catch (e) {
+          console.error('SIMLE Boot failure:', e);
+          const text = document.getElementById('status-text');
+          const dot = document.getElementById('status-dot');
+          text.innerText = 'Engine Error';
+          dot.className = 'w-2.5 h-2.5 bg-red-500 rounded-full mr-3';
         }
+      }
 
-        function renderLibrary() {
-            const grid = document.getElementById('library-grid');
-            if (!libraryData) return;
+      function renderLibrary() {
+        const grid = document.getElementById('library-grid');
+        if (!libraryData) return;
 
-            grid.innerHTML = libraryData.map(book => `
+        grid.innerHTML = libraryData
+          .map(
+            (book) => `
                 <article class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-200 flex flex-col h-full">
                     <div class="aspect-[16/9] relative overflow-hidden" style="background-color: ${book.cover_color || '#1e293b'}">
                         <div class="book-gloss absolute inset-0"></div>
@@ -165,90 +285,104 @@
                         <button onclick="openBook('${book.id}')" class="mt-auto w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors uppercase tracking-widest text-[10px]">Read Book</button>
                     </div>
                 </article>
-            `).join('');
+            `,
+          )
+          .join('');
+      }
+
+      window.openBook = async (bookId) => {
+        const bookMeta = libraryData.find((b) => b.id === bookId);
+        const isLocal =
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1';
+
+        // Resolve base based on environment
+        const base = isLocal
+          ? projectPaths.web_paths.local_books_base
+          : projectPaths.web_paths.server_books_base;
+
+        try {
+          // book.toml and meta.toml should be fetched as strings for the WASM constructor
+          const bookTomlUrl = `${base}/${bookMeta.path}/book.toml`.replace(
+            /\/+/g,
+            '/',
+          );
+          const metaTomlUrl = `${base}/${bookMeta.path}/meta.toml`.replace(
+            /\/+/g,
+            '/',
+          );
+
+          const [bookToml, metaToml] = await Promise.all([
+            fetch(bookTomlUrl).then((r) => r.text()),
+            fetch(metaTomlUrl).then((r) => r.text()),
+          ]);
+
+          // Initialize Engine with strings and is_local boolean
+          engine = new SimleEngineClass(
+            bookToml,
+            metaToml,
+            JSON.stringify(projectPaths),
+            isLocal,
+          );
+
+          document.getElementById('simle-reader-overlay').style.display =
+            'block';
+          document.getElementById('reader-title').innerText =
+            engine.get_title();
+          document.body.style.overflow = 'hidden';
+
+          currentPage = 0;
+          renderPage();
+          renderToC();
+        } catch (e) {
+          console.error('Book Load Error:', e);
+          alert('Failed to load book content. Check console for path errors.');
         }
+      };
 
-        window.openBook = async (bookId) => {
-            const bookMeta = libraryData.find(b => b.id === bookId);
-            const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      function renderPage() {
+        if (!engine) return;
+        const page = engine.get_page(currentPage);
+        const output = document.getElementById('render-output');
 
-            // Resolve base based on environment
-            const base = isLocal ? projectPaths.web_paths.local_books_base : projectPaths.web_paths.server_books_base;
-
-            try {
-                // book.toml and meta.toml should be fetched as strings for the WASM constructor
-                const bookTomlUrl = `${base}/${bookMeta.path}/book.toml`.replace(/\/+/g, '/');
-                const metaTomlUrl = `${base}/${bookMeta.path}/meta.toml`.replace(/\/+/g, '/');
-
-                const [bookToml, metaToml] = await Promise.all([
-                    fetch(bookTomlUrl).then(r => r.text()),
-                    fetch(metaTomlUrl).then(r => r.text())
-                ]);
-
-                // Initialize Engine with strings and is_local boolean
-                engine = new SimleEngineClass(
-                    bookToml,
-                    metaToml,
-                    JSON.stringify(projectPaths),
-                    isLocal
-                );
-
-                document.getElementById('simle-reader-overlay').style.display = 'block';
-                document.getElementById('reader-title').innerText = engine.get_title();
-                document.body.style.overflow = 'hidden';
-
-                currentPage = 0;
-                renderPage();
-                renderToC();
-            } catch (e) {
-                console.error("Book Load Error:", e);
-                alert("Failed to load book content. Check console for path errors.");
-            }
-        };
-
-        function renderPage() {
-            if (!engine) return;
-            const page = engine.get_page(currentPage);
-            const output = document.getElementById('render-output');
-
-            output.innerHTML = `
+        output.innerHTML = `
                 <div class="p-4">
                     <span class="text-[10px] uppercase font-bold text-blue-600 tracking-widest">${page.type}</span>
                     <hr class="my-4 border-slate-100">
                     <pre class="text-xs text-slate-800 whitespace-pre-wrap">${JSON.stringify(page.data, null, 2)}</pre>
                 </div>
             `;
+      }
+
+      function renderToC() {
+        const list = document.getElementById('toc-list');
+        const total = engine.total_pages();
+        let html = '';
+        for (let i = 0; i < total; i++) {
+          html += `<li onclick="goToPage(${i})" class="text-xs text-slate-400 hover:text-white cursor-pointer transition-colors uppercase tracking-tighter">Page ${i + 1}</li>`;
         }
+        list.innerHTML = html;
+      }
 
-        function renderToC() {
-            const list = document.getElementById('toc-list');
-            const total = engine.total_pages();
-            let html = '';
-            for(let i = 0; i < total; i++) {
-                html += `<li onclick="goToPage(${i})" class="text-xs text-slate-400 hover:text-white cursor-pointer transition-colors uppercase tracking-tighter">Page ${i + 1}</li>`;
-            }
-            list.innerHTML = html;
-        }
+      window.goToPage = (i) => {
+        currentPage = i;
+        renderPage();
+      };
 
-        window.goToPage = (i) => {
-            currentPage = i;
-            renderPage();
-        };
+      document.getElementById('close-reader').onclick = () => {
+        document.getElementById('simle-reader-overlay').style.display = 'none';
+        document.body.style.overflow = 'auto';
+      };
 
-        document.getElementById('close-reader').onclick = () => {
-            document.getElementById('simle-reader-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        };
+      document.getElementById('toggle-spread').onclick = (e) => {
+        const stage = document.getElementById('stage');
+        const isPortrait = stage.classList.contains('portrait-mode');
+        stage.classList.toggle('portrait-mode', !isPortrait);
+        stage.classList.toggle('landscape-mode', isPortrait);
+        e.target.innerText = isPortrait ? 'Close Book' : 'Open Book';
+      };
 
-        document.getElementById('toggle-spread').onclick = (e) => {
-            const stage = document.getElementById('stage');
-            const isPortrait = stage.classList.contains('portrait-mode');
-            stage.classList.toggle('portrait-mode', !isPortrait);
-            stage.classList.toggle('landscape-mode', isPortrait);
-            e.target.innerText = isPortrait ? "Close Book" : "Open Book";
-        };
-
-        boot();
+      boot();
     </script>
-</body>
+  </body>
 </html>
