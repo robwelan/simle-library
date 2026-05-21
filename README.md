@@ -65,7 +65,7 @@ you push to main:
 **Always pull before working** to stay in sync with automated version bumps:
 
 ```bash
-git pull \--rebase origin main
+git pull --rebase origin main
 ```
 
 ## **📖 How to Get the Books**
