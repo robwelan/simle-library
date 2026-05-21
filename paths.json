@@ -5,7 +5,7 @@
   "web_paths": {
     "local_books_base": "../books",
     "server_books_base": "./books",
-    "local_shared_base": "../shared-assets",
-    "server_shared_base": "./shared-assets"
+    "local_shared_base": "../shared_assets",
+    "server_shared_base": "./shared_assets"
   }
 }
